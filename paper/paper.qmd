@@ -1,13 +1,12 @@
 ---
-title: "My title"
-subtitle: "My subtitle if needed"
+title: "How do lifestyle and poverty influence BMI across different age groups and genders"
+subtitle: "Negative Correlations with Poverty and Physical Activity, Positive Correlations with Age, Sleep Duration, and Gender"
 author: 
-  - First author
-  - Another author
-thanks: "Code and data are available at: [https://github.com/RohanAlexander/starter_folder](https://github.com/RohanAlexander/starter_folder)."
+  - Sakura Hu
+thanks: "Code and data are available at: [https://github.com/xycww/BMI](https://github.com/xycww/BMI)."
 date: today
 date-format: long
-abstract: "First sentence. Second sentence. Third sentence. Fourth sentence."
+abstract: "This paper investigates the relationship between BMI and factors such as lifestyle, poverty, age, and gender, aiming to identify patterns that influence maintaining a healthy BMI. The analysis uses the NHANES dataset from the US National Health and Nutrition Examination Survey and applies a multilinear regression model. The findings suggest weak overall correlations between log(BMI) and the predictors, though some significant patterns are observed: BMI is negatively associated with poverty and physical activity levels and positively associated with age, sleep duration, and being male. These results underscore the complexity of factors influencing BMI and highlight potential areas for targeted public health interventions to promote healthier lifestyles."
 format: pdf
 number-sections: true
 bibliography: references.bib
@@ -19,34 +18,240 @@ bibliography: references.bib
 #| message: false
 
 library(tidyverse)
-library(palmerpenguins)
+library(ggplot2)
+library(dplyr)
+library(knitr)
+library(patchwork)
+library(arrow)
 ```
 
 
 # Introduction
 
-Overview paragraph
+Body mass index (BMI) is a widely used measure for assessing whether an individual's weight is within a healthy range, with significant implications for health outcomes such as heart disease, diabetes, and mortality. Given its importance, understanding the factors that influence BMI, such as socioeconomic and lifestyle variables, has become an essential area of public health research. This paper aims to address the relationship about how variables like poverty, physical activity, age, sleep duration, and gender interact to influence BMI outcomes.
 
-Estimand paragraph
+Using data from the US National Health and Nutrition Examination Survey (NHANES), this study models log-transformed BMI as a function of five predictors: poverty level, physical activity frequency (measured in days), age, sleep duration, and gender. A multilinear regression approach was employed to quantify these relationships and identify patterns within the dataset.
 
-Results paragraph
+The results indicate that while the correlations between BMI and these predictors are generally weak, several significant relationships are observed. Poverty is associated with a 0.01 decrease in log(BMI), suggesting that higher income corresponds to lower BMI levels. Physical activity frequency also demonstrates a negative relationship with BMI; each additional day of physical activity per week is associated with a 0.004 decrease in log(BMI), indicating a modest benefit of regular exercise for maintaining lower BMI. Sleep duration shows a negative relationship, where one additional hour of sleep per night is linked to a 0.01 decrease in log(BMI). In contrast, age is positively associated with BMI, with each additional year corresponding to a 0.001 increase in log(BMI), reflecting the gradual weight gain commonly seen with aging. Lastly, being male is associated with a 0.02 increase in log(BMI) compared to females, suggesting possible physiological or behavioral differences between genders.
 
-Why it matters paragraph
+These results are essential for informing public health initiatives aimed at addressing weight-related health challenges. By identifying specific socioeconomic and lifestyle factors that influence BMI, this research provides a foundation for developing targeted interventions and strategies to promote healthier weight maintenance.
 
-Telegraphing paragraph: The remainder of this paper is structured as follows. @sec-data....
-
-
-
-
-
+The remainder of this paper is structured as follows. @sec-data....
 
 # Data {#sec-data}
 
 ## Overview
 
-We use the statistical programming language R [@citeR].... Our data [@shelter].... Following @tellingstories, we consider...
+The dataset used in this analysis is derived from the US National Health and Nutrition Examination Survey (NHANES), version 2.1.0, published in July 2015. NHANES is a long-running study conducted by the US National Center for Health Statistics (NCHS) that has been gathering health and nutrition data since the early 1960s. Since 1999, approximately 5,000 individuals from various age groups have been interviewed annually in their homes and undergone health examinations at mobile examination centers (MEC). The dataset contains 10,000 observations and 76 variables. The data used here was originally compiled by Michelle Dalrymple from Cashmere High School and Chris Wild from the University of Auckland for educational purposes.
 
-Overview text
+For the current study, the data was cleaned to focus on variables pertinent to the analysis of BMI. Specifically, variables such as BMI, poverty index, physical activity days, sleep hours, gender, and age were retained. After cleaning the missing values in the dataset, 3,573 observations remained. The dataset was prepared, cleaned, and analyzed using R (R Core Team, 2022) with the following libraries: opendatatoronto (Gelfand, 2022) for accessing the data, tidyverse (Wickham et al., 2019), dplyr (Wickham et al., 2023) for data manipulation, and ggplot2 (Wickham, 2016) for visualizations. Additionally, knitr (Xie, 2023a) was used for report generation, and styler (Müller et al., 2024) ensured the R code was properly styled.
+
+A summary table of cleaned data is shown in table 1.
+
+
+```{r}
+#| echo: false
+#| label: table-summary
+#| tbl-cap: "Summary statistics for variables in the NHANES dataset."
+
+# Load the data
+nhanes_data <- read_parquet("/Users/hxw/marriage/data/02-analysis_data/clean_data.parquet")
+
+# Create summary statistics for each variable
+summary_table <- nhanes_data %>%
+  reframe(
+    Variable = c(
+      "BMI",
+      "log(BMI)",
+      "Poverty Index",
+      "Physical Activity Days",
+      "Age",
+      "Sleep Hours"
+    ),
+    Mean = round(c(
+      mean(BMI),
+      mean(log(BMI)),
+      mean(Poverty),
+      mean(PhysActiveDays),
+      mean(Age),
+      mean(SleepHrsNight)
+    ), 3),
+    Median = round(c(
+      median(BMI),
+      median(log(BMI)),
+      median(Poverty),
+      median(PhysActiveDays),
+      median(Age),
+      median(SleepHrsNight)
+    ), 3),
+    Min = round(c(
+      min(BMI),
+      min(log(BMI)),
+      min(Poverty),
+      min(PhysActiveDays),
+      min(Age),
+      min(SleepHrsNight)
+    ), 3),
+    Max = round(c(
+      max(BMI),
+      max(log(BMI)),
+      max(Poverty),
+      max(PhysActiveDays),
+      max(Age),
+      max(SleepHrsNight)
+    ), 3),
+    `1st Quantile` = round(
+      c(
+        quantile(BMI, 0.25),
+        quantile(log(BMI), 0.25),
+        quantile(Poverty, 0.25),
+        quantile(PhysActiveDays, 0.25),
+        quantile(Age, 0.25),
+        quantile(SleepHrsNight, 0.25)
+      ),
+      3
+    ),
+    `3rd Quantile` = round(
+      c(
+        quantile(BMI, 0.75),
+        quantile(log(BMI), 0.75),
+        quantile(Poverty, 0.75),
+        quantile(PhysActiveDays, 0.75),
+        quantile(Age, 0.75),
+        quantile(SleepHrsNight, 0.75)
+      ),
+      3
+    )
+  )
+
+# Create the summary table using kable
+summary_table %>%
+  kable(caption = "Summary statistics for variables in the NHANES dataset.")
+```
+
+
+```{r}
+#| label: fig-bmi-logbmi
+#| fig-cap: "Distributions of BMI and log(BMI) in the NHANES dataset."
+#| echo: false
+#| fig.width: 8
+#| fig.height: 4
+
+# Create histograms with customized text sizes
+hist_bmi <- ggplot(nhanes_data, aes(x = BMI)) +
+  geom_histogram(binwidth = 1.5,
+                 fill = "lightblue",
+                 color = "black") +
+  labs(title = "BMI Distribution", x = "BMI", y = "Frequency") +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(size = 14),
+    axis.title = element_text(size = 12),
+    axis.text = element_text(size = 10)
+  )
+
+hist_log_bmi <- ggplot(nhanes_data, aes(x = log(BMI))) +
+  geom_histogram(binwidth = 0.1,
+                 fill = "lightblue",
+                 color = "black") +
+  labs(title = "log(BMI) Distribution", x = "log(BMI)", y = "Frequency") +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(size = 14),
+    axis.title = element_text(size = 12),
+    axis.text = element_text(size = 10)
+  )
+
+# Figure 1: BMI and log(BMI)
+figure_bmi <- (hist_bmi | hist_log_bmi) +
+  plot_annotation(caption = "Figure 1: Distributions of BMI and log(BMI) in the NHANES dataset.",
+                  theme = theme(plot.caption = element_text(hjust = 0.5, size = 12)))
+figure_bmi
+
+```
+
+
+```{r}
+#| label: fig-predictor-distributions
+#| fig-cap: "Distributions of predictor variables in the NHANES dataset, including Poverty, Physical Activity Days, Age, Sleep Hours, and Gender."
+#| echo: false
+#| fig.width: 8
+#| fig.height: 12
+
+hist_poverty <- ggplot(nhanes_data, aes(x = Poverty)) +
+  geom_histogram(
+    binwidth = 0.8,
+    fill = "lightgreen",
+    color = "black"
+  ) +
+  labs(title = "Poverty Index Distribution", x = "Poverty Index", y = "Frequency") +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(size = 14),
+    axis.title = element_text(size = 12),
+    axis.text = element_text(size = 10)
+  )
+
+hist_physactive <- ggplot(nhanes_data, aes(x = PhysActiveDays)) +
+  geom_histogram(
+    binwidth = 1,
+    fill = "lightcoral",
+    color = "black"
+  ) +
+  labs(title = "Physical Activity Days Distribution", x = "Physical Activity Days", y = "Frequency") +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(size = 12),
+    axis.title = element_text(size = 10),
+    axis.text = element_text(size = 8)
+  )
+
+hist_age <- ggplot(nhanes_data, aes(x = Age)) +
+  geom_histogram(
+    binwidth = 3.5,
+    fill = "lightyellow",
+    color = "black"
+  ) +
+  labs(title = "Age Distribution", x = "Age", y = "Frequency") +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(size = 12),
+    axis.title = element_text(size = 10),
+    axis.text = element_text(size = 8)
+  )
+
+hist_sleep <- ggplot(nhanes_data, aes(x = SleepHrsNight)) +
+  geom_histogram(binwidth = 1,
+                 fill = "lightpink",
+                 color = "black") +
+  labs(title = "Sleep Hours Distribution", x = "Sleep Hours", y = "Frequency") +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(size = 12),
+    axis.title = element_text(size = 10),
+    axis.text = element_text(size = 8)
+  )
+
+hist_gender <- ggplot(nhanes_data, aes(x = Gender)) +
+  geom_bar(fill = "lightgray", color = "black") +
+  labs(title = "Gender Distribution", x = "Gender", y = "Count") +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(size = 12),
+    axis.title = element_text(size = 10),
+    axis.text = element_text(size = 8)
+  )
+
+# Figure 2: Predictor Variables
+figure_predictors <- (hist_poverty | hist_physactive | hist_age) /
+  (hist_sleep | hist_gender) +
+  plot_annotation(caption = "Figure 2: Distributions of predictor variables in the NHANES dataset, including Poverty, Physical Activity Days, Age, Sleep Hours, and Gender.",
+                  theme = theme(plot.caption = element_text(hjust = 0.5, size = 12)))
+figure_predictors
+
+```
+
+
 
 ## Measurement
 	
@@ -54,82 +259,45 @@ Some paragraphs about how we go from a phenomena in the world to an entry in the
 
 ## Outcome variables
 
-Add graphs, tables and text. Use sub-sub-headings for each outcome variable or update the subheading to be singular.
+The primary outcome variable in this study is log-transformed BMI, a measure of body mass index adjusted to normalize its distribution. BMI is widely used to assess healthy weight relative to height, and its relevance to health outcomes such as cardiovascular disease and diabetes has been well-established. For this analysis, BMI was log-transformed to address its skewed distribution shown in Figure 1, providing a better fit for statistical modeling.
 
-
-
-Some of our data is of penguins (@fig-bills), from @palmerpenguins.
-
-```{r}
-#| label: fig-bills
-#| fig-cap: Bills of penguins
-#| echo: false
-
-ggplot(penguins, aes(x = island, fill = species)) +
-  geom_bar(alpha = 0.8) +
-  scale_fill_manual(values = c("darkorange","purple","cyan4"),
-                    guide = "none") +
-  theme_minimal() +
-  facet_wrap(~species, ncol = 1) +
-  coord_flip()
-```
-
-Talk more about it.
-
-And also planes (@fig-planes). (You can change the height and width, but don't worry about doing that until you have finished every other aspect of the paper - Quarto will try to make it look nice and the defaults usually work well once you have enough text.)
-
-```{r}
-#| label: fig-planes
-#| fig-cap: Relationship between wing length and width
-#| echo: false
-#| warning: false
-#| message: false
-
-analysis_data <- read_csv(here::here("data/02-analysis_data/analysis_data.csv"))
-
-analysis_data |> 
-  ggplot(aes(x = width, y = length)) +
-  geom_point(alpha = 0.8) +
-  theme_minimal() +
-  labs(x = "Wing width (mm)",
-       y = "Wing length (mm)")
-```
-
-Talk way more about it. 
 
 ## Predictor variables
+The following predictor variables were examined to assess the potential lifestyle and socio-economic factors influencing BMI:
 
-Add graphs, tables and text.
+- `Poverty`: This variable represents the ratio of a family’s income to the federal poverty guidelines, with lower values indicating higher levels of poverty.
+- `Physical Activity Days (PhysActiveDays)`: The number of days in a typical week that a participant engages in moderate or vigorous physical activity. This variable is recorded for individuals aged 12 years and older.
+- `Sleep Duration (SleepHrsNight)`: The self-reported average number of hours of sleep a participant receives on weekdays or workdays. This variable is recorded for individuals aged 16 years and older.
+- `Gender`: The gender of the participant, categorized as male or female.
+- `Age`: The participant's age at the time of screening, recorded in years. For participants aged 80 years or older, the age was recorded as 80.
 
-Use sub-sub-headings for each outcome variable and feel free to combine a few into one if they go together naturally.
+### Distribution of Predictor Variables
+The summary statistics presented in Figure 1 and the histograms of predictor variables shown in Figure 3 provide insights into the distribution of these variables:
 
-
-
-
-
-
+- `Poverty`: The poverty index ranges from 0 to 5, with a mean of 3.077. The histogram indicates a marked left skew, suggesting that a significant proportion of participants fall into lower income categories.
+- `Physical Activity Days (PhysActiveDays)`: The number of days participants engage in physical activity ranges from 2 to 7, with a mean value of 3.7 days per week.
+- `Sleep Duration (SleepHrsNight)`:The number of hours participants sleep each night ranges from 2 to 12 hours, with a mean of 6.96 hours. The distribution of this variable approximates a normal curve.
+- `Gender`: The gender distribution is nearly balanced, with 1,814 male participants and 1,759 female participants.
+- `Age`: The age of participants spans from 16 to 80 years, with a mean age of 43.61 years. The histogram shows a slight right skew, with a concentration of participants aged between 29 and 56 years.
 
 
 # Model
 
-The goal of our modelling strategy is twofold. Firstly,...
-
+The goal of our modelling strategy is to use multilinear regression model to investigate the relationship between log(BMI) and poverty, Physical Activity Days, Sleep Duration, gender and age. 
 Here we briefly describe the Bayesian analysis model used to investigate... Background details and diagnostics are included in [Appendix -@sec-model-details].
 
 ## Model set-up
 
-Define $y_i$ as the number of seconds that the plane remained aloft. Then $\beta_i$ is the wing width and $\gamma_i$ is the wing length, both measured in millimeters.  
+Define $log(BMI)_i$ as the log(BMI). Then $\beta_i$ are the coefficients associated with each predictor variable, which represent the change in $log(BMI)_i$ for a one-unit change in the corresponding predictor, while holding all other predictors constant.
 
-\begin{align} 
-y_i|\mu_i, \sigma &\sim \mbox{Normal}(\mu_i, \sigma) \\
-\mu_i &= \alpha + \beta_i + \gamma_i\\
-\alpha &\sim \mbox{Normal}(0, 2.5) \\
-\beta &\sim \mbox{Normal}(0, 2.5) \\
-\gamma &\sim \mbox{Normal}(0, 2.5) \\
-\sigma &\sim \mbox{Exponential}(1)
-\end{align}
+\begin{equation*} 
+\log(\text{BMI}_i) = \beta_0 + \beta_1 \cdot \text{Poverty}_i + \beta_2 \cdot \text{PhysActiveDays}_i + \beta_3 \cdot \text{Age}_i + \beta_4 \cdot \text{SleepHrsNight}_i + \beta_5 \cdot \text{Gender}_i + \epsilon_i
+\end{equation*}
+\begin{equation*}
+\epsilon_i \sim \text{Normal}(0, \sigma^2)
+\end{equation*}
 
-We run the model in R [@citeR] using the `rstanarm` package of @rstanarm. We use the default priors from `rstanarm`.
+We ran the model in R [@citeR] using the lm() function for linear regression, with data manipulation performed using the dplyr package and data reading via the arrow package. No specific priors were applied, as this model relies on ordinary least squares (OLS) estimation, which assumes no prior distributions for the coefficients.
 
 
 ### Model justification
@@ -151,24 +319,12 @@ Our results are summarized in @tbl-modelresults.
 
 library(rstanarm)
 
-first_model <-
-  readRDS(file = here::here("models/first_model.rds"))
 ```
 
 ```{r}
 #| echo: false
 #| eval: true
-#| label: tbl-modelresults
-#| tbl-cap: "Explanatory models of flight time based on wing width and wing length"
-#| warning: false
 
-modelsummary::modelsummary(
-  list(
-    "First model" = first_model
-  ),
-  statistic = "mad",
-  fmt = 2
-)
 ```
 
 
@@ -208,24 +364,7 @@ In @fig-ppcheckandposteriorvsprior-1 we implement a posterior predictive check. 
 In @fig-ppcheckandposteriorvsprior-2 we compare the posterior with the prior. This shows... 
 
 ```{r}
-#| eval: true
-#| echo: false
-#| message: false
-#| warning: false
-#| label: fig-ppcheckandposteriorvsprior
-#| layout-ncol: 2
-#| fig-cap: "Examining how the model fits, and is affected by, the data"
-#| fig-subcap: ["Posterior prediction check", "Comparing the posterior with the prior"]
 
-pp_check(first_model) +
-  theme_classic() +
-  theme(legend.position = "bottom")
-
-posterior_vs_prior(first_model) +
-  theme_minimal() +
-  scale_color_brewer(palette = "Set1") +
-  theme(legend.position = "bottom") +
-  coord_flip()
 ```
 
 ## Diagnostics
@@ -235,18 +374,7 @@ posterior_vs_prior(first_model) +
 @fig-stanareyouokay-2 is a Rhat plot. It shows... This suggests...
 
 ```{r}
-#| echo: false
-#| eval: true
-#| message: false
-#| warning: false
-#| label: fig-stanareyouokay
-#| fig-cap: "Checking the convergence of the MCMC algorithm"
-#| fig-subcap: ["Trace plot", "Rhat plot"]
-#| layout-ncol: 2
 
-plot(first_model, "trace")
-
-plot(first_model, "rhat")
 ```
 
 
