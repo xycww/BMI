@@ -28,7 +28,8 @@ clean_data <- raw_data %>%
     !is.na(Age),
     !is.na(SleepHrsNight),
     !is.na(Gender)
-  )
+  ) %>%
+  distinct()  # Remove duplicate rows
 
 #### Save data ####
 write_parquet(clean_data, "data/02-analysis_data/clean_data.parquet")

@@ -23,6 +23,7 @@ library(dplyr)
 library(knitr)
 library(patchwork)
 library(arrow)
+library(broom)
 ```
 
 
@@ -301,11 +302,19 @@ We ran the model in R [@citeR] using the lm() function for linear regression, wi
 
 
 ### Model justification
+We use a multiple linear regression model to estimate the relationship between body mass index (BMI) and various predictors, including poverty index, physical activity days, age, sleep hours, and gender. The model is designed to predict log-transformed BMI, as this transformation helps normalize the distribution of BMI and address skewness. This approach allows us to explore how these lifestyle and socio-economic factors influence BMI across the sample, using high-quality survey data from the NHANES dataset. We employ predictors like poverty, physical activity, age, sleep hours, and gender to account for key factors that are known to influence BMI, based on existing research.
 
-We expect a positive relationship between the size of the wings and time spent aloft. In particular...
+We use linear regression because it is appropriate for modeling the relationship between a continuous outcome variable (log(BMI)) and predictors physical activity, sleep hours, age, poverty, and gender. This method is straightforward to interpret, and the results could quantify the effect of predictors on BMI, making it a suitable choice for analyzing how these factors relate to BMI.
 
-We can use maths by including latex between dollar signs, for instance $\theta$.
+We chose to log-transform the BMI variable due to its right-skewed distribution. Log-transforming BMI allows us to better meet the assumptions of linear regression by stabilizing variance and making the relationship between BMI and predictors more linear. This is particularly important for ensuring that the model’s estimates are valid and interpretable.
 
+We included the variable 'Poverty' to account for socio-economic status, as previous research has suggested that lower-income individuals tend to have higher BMI levels (Webber et al., 2023). 'PhysActiveDays' was included to capture the effect of physical activity on BMI, as increased physical activity is typically associated with a lower BMI(Webber et al., 2023). Age was included as a predictor to account for the natural changes in BMI that occur as individuals age. Sleep hours were added because there is evidence that insufficient sleep can contribute to weight gain (Ekstedt et al., 2013). Gender was included as a predictor due to well-established gender differences in BMI, with males typically having lower BMI than females (Longo-Silva et al., 2023).
+
+We used the default settings in lm() from the stats package, which assumes normally distributed errors and does not apply any specific prior distributions, as this method does not require priors in the same way that Bayesian methods do. This approach provides a reliable way to assess the linear relationship between the predictors and BMI. However, we acknowledge that other methods, such as Bayesian regression or generalized linear models, could be used for more complex modeling, but this approach was selected for its simplicity and interpretability given the goals of the analysis.
+
+Initially, we considered including interaction terms between predictors (such as between poverty and physical activity). However, when these interaction terms were added, the R-squared value decreased, indicating a reduced fit to the data. Additionally, the residual plot showed a noticeable concentration in the residuals, suggesting potential model misspecification or overfitting. As a result, we decided to exclude interaction terms to maintain a more interpretable and well-fitted model. Future analyses could revisit this approach with a larger dataset or alternative modeling strategies to better account for potential interactions.
+
+By using this model, we aim to better understand the factors that influence BMI and provide insights into potential public health interventions that could target lifestyle changes and socio-economic factors to reduce BMI and related health risks.
 
 # Results
 
@@ -313,20 +322,93 @@ Our results are summarized in @tbl-modelresults.
 
 ```{r}
 #| echo: false
-#| eval: true
-#| warning: false
-#| message: false
+#| label: tbl-modelresults
+#| tbl-cap: "Summary statistics for variables in the NHANES dataset."
 
-library(rstanarm)
+# Load the saved linear model
+lm_model <- readRDS("/Users/hxw/marriage/models/lm_model.rds")
+# Tidy the model summary
+model_summary <- tidy(lm_model)
+# Extract R-squared value
+r_squared <- summary(lm_model)$r.squared
 
+# Add R-squared to the model summary table
+model_summary_with_r2 <- model_summary %>%
+  bind_rows(tibble::tibble(
+    term = "R-squared",
+    estimate = r_squared,
+    std.error = NA,
+    statistic = NA,
+    p.value = NA
+  ))
+
+# Print the model summary table using knitr::kable
+model_summary_with_r2 %>%
+  kable(caption = "Summary of the Linear Model for Log(BMI)")
 ```
 
 ```{r}
-#| echo: false
-#| eval: true
+#| label: fig-predictor-bmi
+#| fig-cap: "Scatter plots of predictors vs. log(BMI) with fitted regression lines."
+#| fig.width: 8
+#| fig.height: 12
+
+# Scatter plot for Age vs. log(BMI)
+plot_age_bmi <- ggplot(nhanes_data, aes(x = Age, y = log(BMI))) +
+  geom_point(size = 0.3) +
+  geom_smooth(method = "lm", col = "red", se = FALSE) +
+  labs(title = "Age vs. log(BMI)", x = "Age", y = "log(BMI)") +
+  theme_minimal() +
+  theme(plot.title = element_text(size = 12), axis.title = element_text(size = 10), axis.text = element_text(size = 8))
+
+# Scatter plot for Gender vs. log(BMI)
+plot_gender_bmi <- ggplot(nhanes_data, aes(x = Gender, y = log(BMI))) +
+  geom_point() +
+  geom_smooth(method = "lm", col = "red", se = FALSE) +
+  labs(title = "Figure17: Gender vs. log(BMI)", x = "Gender", y = "log(BMI)") +
+  theme_minimal() +
+  theme(plot.title = element_text(size = 14), axis.title = element_text(size = 12), axis.text = element_text(size = 10))
+
+# Scatter plot for Poverty vs. log(BMI)
+plot_poverty_bmi <- ggplot(nhanes_data, aes(x = Poverty, y = log(BMI))) +
+  geom_point() +
+  geom_smooth(method = "lm", col = "red", se = FALSE) +
+  labs(title = "Figure18: Poverty vs. log(BMI)", x = "Poverty", y = "log(BMI)") +
+  theme_minimal() +
+  theme(plot.title = element_text(size = 14), axis.title = element_text(size = 12), axis.text = element_text(size = 10))
+
+# Scatter plot for SleepHrsNight vs. log(BMI)
+plot_sleep_bmi <- ggplot(nhanes_data, aes(x = SleepHrsNight, y = log(BMI))) +
+  geom_point() +
+  geom_smooth(method = "lm", col = "red", se = FALSE) +
+  labs(title = "Figure19: SleepHrsNight vs. log(BMI)", x = "SleepHrsNight", y = "log(BMI)") +
+  theme_minimal() +
+  theme(plot.title = element_text(size = 14), axis.title = element_text(size = 12), axis.text = element_text(size = 10))
+
+# Scatter plot for PhysActiveDays vs. log(BMI)
+plot_physactive_bmi <- ggplot(nhanes_data, aes(x = PhysActiveDays, y = log(BMI))) +
+  geom_point() +
+  geom_smooth(method = "lm", col = "red", se = FALSE) +
+  labs(title = "Figure20: Physical Active Days vs. log(BMI)", x = "PhysActiveDays", y = "log(BMI)") +
+  theme_minimal() +
+  theme(plot.title = element_text(size = 14), axis.title = element_text(size = 12), axis.text = element_text(size = 10))
+
+# Combine all plots into a single figure using patchwork
+library(patchwork)
+combined_plot <- (plot_age_bmi | plot_gender_bmi) / 
+                 (plot_poverty_bmi | plot_sleep_bmi) / 
+                 plot_physactive_bmi +
+  plot_annotation(
+    title = "Diagnostic and Predictor Relationships in the Linear Model",
+    caption = "Figure: Diagnostic and variable relationships from the linear model for log(BMI).",
+    theme = theme(plot.caption = element_text(hjust = 0.5, size = 10))
+  )
+
+# Display the combined plot
+combined_plot
+
 
 ```
-
 
 
 
@@ -344,7 +426,13 @@ Please don't use these as sub-heading labels - change them to be what your point
 
 ## Weaknesses and next steps
 
-Weaknesses and next steps should also be included.
+While the model results provide valuable insights into the relationship between log(BMI) and various predictor variables, there are some limitations that should be addressed in future analyses. One significant weakness is the relatively low R-squared value of 0.02335, indicating that the model only explains a small portion of the variance in BMI. This suggests that there are other factors, potentially unaccounted for in the model, that influence BMI. Although several predictors show statistically significant relationships with BMI, the explanatory power of the model remains limited. It is possible that additional variables, such as dietary habits, genetics, or environmental factors, could improve the model's ability to explain the variation in BMI.
+
+Another limitation is the potential for omitted variable bias. Despite including a range of relevant predictors, there may be other important factors that have not been incorporated into the model. For instance, socioeconomic status, mental health, or access to healthcare may play significant roles in determining BMI but were not included in the current analysis. Future models could benefit from a more comprehensive selection of predictor variables to provide a more holistic understanding of BMI variation.
+
+Additionally, the model assumes linear relationships between the predictors and BMI, which may not fully capture the complexities of the data. Interaction effects, such as between poverty and physical activity, could potentially reveal more nuanced relationships, but these were not included in the current model. The absence of interaction terms may have led to the underestimation of the impact of certain predictors, as the effect of one variable may depend on the level of another. Future analyses could explore interaction terms to assess whether these improve model fit and offer deeper insights into the factors that influence BMI.
+
+Moving forward, there are several steps that could be taken to address these weaknesses. First, the inclusion of additional predictors could improve the model's explanatory power. Collecting more detailed data on lifestyle, diet, or mental health factors would help provide a more complete picture of the determinants of BMI. Second, using a non-linear model or exploring transformations of the predictors might better capture the relationships between BMI and the explanatory variables. Finally, addressing the possibility of interaction effects and testing different model specifications could enhance the robustness of the results. This could include experimenting with non-parametric models, such as random forests or gradient boosting machines, to better handle the complexities of the data. By expanding the scope of the analysis and refining the model, future work could yield more precise estimates and offer more actionable insights for public health interventions.
 
 \newpage
 
@@ -369,15 +457,107 @@ In @fig-ppcheckandposteriorvsprior-2 we compare the posterior with the prior. Th
 
 ## Diagnostics
 
-@fig-stanareyouokay-1 is a trace plot. It shows... This suggests...
-
-@fig-stanareyouokay-2 is a Rhat plot. It shows... This suggests...
+The analysis of linear regression assumptions shows that all conditions are met. The fitted versus residual plot (Figure 8) displays a null plot centered around zero, indicating that the linearity assumption is satisfied, as no discernible pattern exists. Additionally, the consistent spread of residuals across the fitted values confirms the constant error variance assumption. The absence of correlation or patterns suggests that the independence of errors is also satisfied. Both the fitted versus standardized residuals plot (Figure 9) and the predictor variables versus residuals plots (Figures 11 to 13) support these conclusions.
+The QQ plot (Figure 15) shows standardized residuals following a straight diagonal line, while the histogram (Figure 10) indicates a distribution close to ~N(0,1), confirming the normality assumption of errors. Lastly, the response variable versus fitted values plot (Figure 14) shows that observed values align with predicted values, suggesting that the model accurately predicts the response variable.
+Although the residual plots indicate that all regression assumptions are met, the predictor versus response plots (Figures 16 to 20) show weak correlations between predictor variables and log(BMI), with log(BMI) approximated by
 
 ```{r}
+#| echo: false
+#| label: fig-model-diagnostics
+#| fig-cap: "Diagnostic and Predictor Relationships in the Linear Model for log(BMI)."
+#| fig.width: 8
+#| fig.height: 12
+
+# Extract values for residuals and fitted values
+fitted_values <- fitted(lm_model)
+residual_values <- resid(lm_model)
+sresidual_values <- rstandard(lm_model)
+
+# Data for scatter plots
+scatter_data <- nhanes_data %>%
+  mutate(log_BMI = log(BMI))
+
+# Create each plot
+# 1. Fitted vs Residuals
+plot_fitted_residuals <- ggplot(data.frame(fitted_values, residual_values), 
+                                aes(x = fitted_values, y = residual_values)) +
+  geom_point(color = "blue", size = 0.3) +
+  geom_hline(yintercept = 0, linetype = "dashed") +
+  labs(title = "Fitted vs Residuals", x = "Fitted Values", y = "Residuals") +
+  theme_minimal() +
+  theme(axis.title = element_text(size = 10), axis.text = element_text(size = 8))
+
+# 2. Fitted vs Standardized Residuals
+plot_fitted_standardized <- ggplot(data.frame(fitted_values, sresidual_values), 
+                                   aes(x = fitted_values, y = sresidual_values)) +
+  geom_point(color = "red", size = 0.3) +
+  geom_hline(yintercept = 0, linetype = "dashed") +
+  labs(title = "Fitted vs Standardized Residuals", x = "Fitted Values", y = "Standardized Residuals") +
+  theme_minimal() +
+  theme(axis.title = element_text(size = 10), axis.text = element_text(size = 8))
+
+# 3. Standardized Residuals Histogram
+plot_residuals_hist <- ggplot(data.frame(sresidual_values), aes(x = sresidual_values)) +
+  geom_histogram(binwidth = 0.1, fill = "lightblue", color = "black") +
+  labs(title = "Histogram of Standardized Residuals", x = "Standardized Residuals", y = "Frequency") +
+  theme_minimal() +
+  theme(axis.title = element_text(size = 10), axis.text = element_text(size = 8))
+
+# 4. Residuals vs Poverty
+plot_residuals_poverty <- ggplot(data.frame(nhanes_data$Poverty, residual_values), 
+                                 aes(x = nhanes_data$Poverty, y = residual_values)) +
+  geom_point(color = "green", size = 0.3) +
+  geom_hline(yintercept = 0, linetype = "dashed") +
+  labs(title = "Poverty vs Residuals", x = "Poverty Index", y = "Residuals") +
+  theme_minimal() +
+  theme(axis.title = element_text(size = 10), axis.text = element_text(size = 8))
+
+# 5. Residuals vs Age
+plot_residuals_age <- ggplot(data.frame(nhanes_data$Age, residual_values), 
+                             aes(x = nhanes_data$Age, y = residual_values)) +
+  geom_point(color = "orange", size = 0.3) +
+  geom_hline(yintercept = 0, linetype = "dashed") +
+  labs(title = "Age vs Residuals", x = "Age", y = "Residuals") +
+  theme_minimal() +
+  theme(axis.title = element_text(size = 10), axis.text = element_text(size = 8))
+
+# 6. Residuals vs Gender
+plot_residuals_gender <- ggplot(data.frame(nhanes_data$Gender, residual_values), 
+                                aes(x = nhanes_data$Gender, y = residual_values)) +
+  geom_boxplot(fill = "gray") +
+  labs(title = "Gender vs Residuals", x = "Gender", y = "Residuals") +
+  theme_minimal() +
+  theme(axis.title = element_text(size = 10), axis.text = element_text(size = 8))
+
+# 7. Fitted vs Log(BMI)
+plot_fitted_logBMI <- ggplot(data.frame(fitted_values, log_BMI = scatter_data$log_BMI), 
+                             aes(x = fitted_values, y = log_BMI)) +
+  geom_point(color = "purple", size = 0.3) +
+  geom_abline(intercept = 0, slope = 1, color = "blue", linetype = "dashed") +
+  labs(title = "Fitted vs log(BMI)", x = "Fitted Values", y = "log(BMI)") +
+  theme_minimal() +
+  theme(axis.title = element_text(size = 10), axis.text = element_text(size = 8))
+
+# 8. Q-Q Plot
+plot_qq <- ggplot(data = data.frame(std_resid = rstandard(lm_model)), aes(sample = std_resid)) +
+  stat_qq(color = "darkred", size = 0.3) +
+  stat_qq_line(color = "blue") +
+  labs(title = "Normal Q-Q Plot", x = "Theoretical Quantiles", y = "Standardized Residuals") +
+  theme_minimal() +
+  theme(axis.title = element_text(size = 10), axis.text = element_text(size = 8))
+
+# Combine all plots into one big plot
+big_plot <- (
+  (plot_fitted_residuals | plot_fitted_standardized) /
+  (plot_residuals_hist | plot_residuals_poverty) /
+  (plot_residuals_age | plot_residuals_gender) /
+  (plot_fitted_logBMI | plot_qq)
+)
+
+# Display the combined plot
+big_plot
 
 ```
-
-
 
 \newpage
 

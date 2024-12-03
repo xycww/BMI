@@ -1,69 +1,85 @@
 #### Preamble ####
-# Purpose: Tests... [...UPDATE THIS...]
-# Author: Rohan Alexander [...UPDATE THIS...]
-# Date: 26 September 2024 [...UPDATE THIS...]
-# Contact: rohan.alexander@utoronto.ca [...UPDATE THIS...]
+# Purpose: Tests the structure and validity of the analysis data
+# Author: Sakura Hu
+# Date: 01 December 2024
+# Contact: Sakura.Hu@utoronto.ca
 # License: MIT
-# Pre-requisites: [...UPDATE THIS...]
-# Any other information needed? [...UPDATE THIS...]
+# Pre-requisites:
+# - The `arrow`, `testthat`, and `pointblank` package must be installed and loaded
+# - 03-clean_data.R must have been run
+# Any other information needed? Make sure you are in the `bmi` rproj
 
 
 #### Workspace setup ####
-library(tidyverse)
 library(testthat)
+library(pointblank)
+library(arrow)
 
-data <- read_csv("data/02-analysis_data/analysis_data.csv")
 
 
 #### Test data ####
-# Test that the dataset has 151 rows - there are 151 divisions in Australia
-test_that("dataset has 151 rows", {
-  expect_equal(nrow(analysis_data), 151)
+analysis_data <- read_parquet("/Users/hxw/marriage/data/02-analysis_data/clean_data.parquet")
+
+
+
+#### Test Suite ####
+
+# 1. Test for Missing Values in Key Columns using pointblank
+test_that("No columns contain NA values", {
+  expect_equal(sum(is.na(analysis_data)), 0)
 })
 
-# Test that the dataset has 3 columns
-test_that("dataset has 3 columns", {
-  expect_equal(ncol(analysis_data), 3)
+# 2. Test for Duplicates in the Dataset using testthat
+test_that("No duplicate rows exist", {
+  expect_equal(any(duplicated(analysis_data)), FALSE)
 })
 
-# Test that the 'division' column is character type
-test_that("'division' is character", {
-  expect_type(analysis_data$division, "character")
+# 3. Test if all 'BMI' are positive
+test_that("BMI values should be between 10 and 40", {
+  expect_true(all(analysis_data$BMI >= 0))  # Fixing the range here
 })
 
-# Test that the 'party' column is character type
-test_that("'party' is character", {
-  expect_type(analysis_data$party, "character")
+# 4. Test for Outliers in 'Poverty' using testthat
+test_that("Poverty values should be between 0 and 5", {
+  expect_true(all(analysis_data$Poverty >= 0 &
+                    analysis_data$Poverty <= 5))
 })
 
-# Test that the 'state' column is character type
-test_that("'state' is character", {
-  expect_type(analysis_data$state, "character")
+# 5. Test for Outliers in 'Age' using testthat
+test_that("Age values should be between 16 and 80", {
+  expect_true(all(analysis_data$Age >= 16 &
+                    analysis_data$Age <= 80))
 })
 
-# Test that there are no missing values in the dataset
-test_that("no missing values in dataset", {
-  expect_true(all(!is.na(analysis_data)))
+# 6. Test for Outliers in 'PhysActiveDays' using testthat
+test_that("PhysActiveDays values should be between 1 and 7", {
+  expect_true(all(
+    analysis_data$PhysActiveDays >= 1 &
+      analysis_data$PhysActiveDays <= 7
+  ))
 })
 
-# Test that 'division' contains unique values (no duplicates)
-test_that("'division' column contains unique values", {
-  expect_equal(length(unique(analysis_data$division)), 151)
+# 8. Test for Outliers in 'SleepHrsNight' using testthat
+test_that("SleepHrsNight values should be between 2 and 12", {
+  expect_true(all(
+    analysis_data$SleepHrsNight >= 2 &
+      analysis_data$PhysActiveDays <= 12
+  ))
 })
 
-# Test that 'state' contains only valid Australian state or territory names
-valid_states <- c("New South Wales", "Victoria", "Queensland", "South Australia", "Western Australia", 
-                  "Tasmania", "Northern Territory", "Australian Capital Territory")
-test_that("'state' contains valid Australian state names", {
-  expect_true(all(analysis_data$state %in% valid_states))
+# 9. Check the Distribution of Gender using testthat
+test_that("Gender should only be male or female", {
+  expect_true(all(analysis_data$Gender %in% c("male", "female")))
 })
 
-# Test that there are no empty strings in 'division', 'party', or 'state' columns
-test_that("no empty strings in 'division', 'party', or 'state' columns", {
-  expect_false(any(analysis_data$division == "" | analysis_data$party == "" | analysis_data$state == ""))
+# 10. Check for Data Type Consistency using testthat
+test_that("Data types should match expectations", {
+  expect_is(analysis_data$BMI, "numeric")
+  expect_is(analysis_data$Poverty, "numeric")
+  expect_is(analysis_data$PhysActiveDays, "integer")
+  expect_is(analysis_data$Age, "integer")
+  expect_is(analysis_data$SleepHrsNight, "integer")
+  expect_is(analysis_data$Gender, "factor")
 })
 
-# Test that the 'party' column contains at least 2 unique values
-test_that("'party' column contains at least 2 unique values", {
-  expect_true(length(unique(analysis_data$party)) >= 2)
-})
+# End of Tests

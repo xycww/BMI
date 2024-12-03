@@ -1,52 +1,36 @@
 #### Preamble ####
-# Purpose: Simulates a dataset of Australian electoral divisions, including the 
-  #state and party that won each division.
-# Author: Rohan Alexander
-# Date: 26 September 2024
-# Contact: rohan.alexander@utoronto.ca
+# Purpose: Simulates the dataset
+# Author: Sakura Hu
+# Date: 01 December 2024
+# Contact: Sakura.Hu@utoronto.ca
 # License: MIT
-# Pre-requisites: The `tidyverse` package must be installed
-# Any other information needed? Make sure you are in the `starter_folder` rproj
+# Pre-requisites: The `dplyr` package must be installed
+# Any other information needed? Make sure you are in the `bmi` rproj
+
 
 
 #### Workspace setup ####
-library(tidyverse)
-set.seed(853)
+library(dplyr)
+set.seed(1009201917)
 
 
 #### Simulate data ####
-# State names
-states <- c(
-  "New South Wales",
-  "Victoria",
-  "Queensland",
-  "South Australia",
-  "Western Australia",
-  "Tasmania",
-  "Northern Territory",
-  "Australian Capital Territory"
-)
+# Simulating data for the predictors
+n <- 100  # Number of observations
 
-# Political parties
-parties <- c("Labor", "Liberal", "Greens", "National", "Other")
-
-# Create a dataset by randomly assigning states and parties to divisions
-analysis_data <- tibble(
-  division = paste("Division", 1:151),  # Add "Division" to make it a character
-  state = sample(
-    states,
-    size = 151,
-    replace = TRUE,
-    prob = c(0.25, 0.25, 0.15, 0.1, 0.1, 0.1, 0.025, 0.025) # Rough state population distribution
-  ),
-  party = sample(
-    parties,
-    size = 151,
-    replace = TRUE,
-    prob = c(0.40, 0.40, 0.05, 0.1, 0.05) # Rough party distribution
-  )
+# Simulating values based on the provided data
+simulated_data <- data.frame(
+  BMI = rnorm(n, mean = 15, sd = 6),
+  Poverty = sample(0:5, n, replace = TRUE),
+  PhysActiveDays = sample(1:7, n, replace = TRUE),
+  # Simulating physical activity days (1-7 scale)
+  Age = sample(16:80, n, replace = TRUE),
+  # Simulating ages (16 to 80 years)
+  SleepHrsNight = sample(2:12, n, replace = TRUE),
+  # Simulating hours of sleep (4-12 hours)
+  Gender = sample(c("male", "female"), n, replace = TRUE)  # Simulating gender
 )
 
 
 #### Save data ####
-write_csv(analysis_data, "data/00-simulated_data/simulated_data.csv")
+write_csv(simulated_data, "data/00-simulated_data/simulated_data.csv")

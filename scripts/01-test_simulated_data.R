@@ -1,89 +1,85 @@
 #### Preamble ####
-# Purpose: Tests the structure and validity of the simulated Australian 
-  #electoral divisions dataset.
-# Author: Rohan Alexander
-# Date: 26 September 2024
-# Contact: rohan.alexander@utoronto.ca
+# Purpose: Tests the structure and validity of the simulated data
+# Author: Sakura Hu
+# Date: 01 December 2024
+# Contact: Sakura.Hu@utoronto.ca
 # License: MIT
-# Pre-requisites: 
-  # - The `tidyverse` package must be installed and loaded
-  # - 00-simulate_data.R must have been run
-# Any other information needed? Make sure you are in the `starter_folder` rproj
+# Pre-requisites:
+# - The `tidyverse`, `testthat`, and `pointblank` package must be installed and loaded
+# - 00-simulate_data.R must have been run
+# Any other information needed? Make sure you are in the `bmi` rproj
 
 
 #### Workspace setup ####
+library(testthat)
+library(pointblank)
 library(tidyverse)
 
-analysis_data <- read_csv("data/00-simulated_data/simulated_data.csv")
-
-# Test if the data was successfully loaded
-if (exists("analysis_data")) {
-  message("Test Passed: The dataset was successfully loaded.")
-} else {
-  stop("Test Failed: The dataset could not be loaded.")
-}
 
 
 #### Test data ####
+simulated_data <- read_csv("/Users/hxw/marriage/data/00-simulated_data/simulated_data.csv")
 
-# Check if the dataset has 151 rows
-if (nrow(analysis_data) == 151) {
-  message("Test Passed: The dataset has 151 rows.")
-} else {
-  stop("Test Failed: The dataset does not have 151 rows.")
-}
 
-# Check if the dataset has 3 columns
-if (ncol(analysis_data) == 3) {
-  message("Test Passed: The dataset has 3 columns.")
-} else {
-  stop("Test Failed: The dataset does not have 3 columns.")
-}
 
-# Check if all values in the 'division' column are unique
-if (n_distinct(analysis_data$division) == nrow(analysis_data)) {
-  message("Test Passed: All values in 'division' are unique.")
-} else {
-  stop("Test Failed: The 'division' column contains duplicate values.")
-}
+#### Test Suite ####
 
-# Check if the 'state' column contains only valid Australian state names
-valid_states <- c("New South Wales", "Victoria", "Queensland", "South Australia", 
-                  "Western Australia", "Tasmania", "Northern Territory", 
-                  "Australian Capital Territory")
+# 1. Test for Missing Values in Key Columns using pointblank
+test_that("No columns contain NA values", {
+  expect_equal(sum(is.na(simulated_data)), 0)
+})
 
-if (all(analysis_data$state %in% valid_states)) {
-  message("Test Passed: The 'state' column contains only valid Australian state names.")
-} else {
-  stop("Test Failed: The 'state' column contains invalid state names.")
-}
+# 2. Test for Duplicates in the Dataset using testthat
+test_that("No duplicate rows exist", {
+  expect_equal(any(duplicated(simulated_data)), FALSE)
+})
 
-# Check if the 'party' column contains only valid party names
-valid_parties <- c("Labor", "Liberal", "Greens", "National", "Other")
+# 3. Test if all 'BMI' are positive
+test_that("BMI values should be between 10 and 40", {
+  expect_true(all(simulated_data$BMI >= 0))  # Fixing the range here
+})
 
-if (all(analysis_data$party %in% valid_parties)) {
-  message("Test Passed: The 'party' column contains only valid party names.")
-} else {
-  stop("Test Failed: The 'party' column contains invalid party names.")
-}
+# 4. Test for Outliers in 'Poverty' using testthat
+test_that("Poverty values should be between 0 and 5", {
+  expect_true(all(simulated_data$Poverty >= 0 &
+                    simulated_data$Poverty <= 5))
+})
 
-# Check if there are any missing values in the dataset
-if (all(!is.na(analysis_data))) {
-  message("Test Passed: The dataset contains no missing values.")
-} else {
-  stop("Test Failed: The dataset contains missing values.")
-}
+# 5. Test for Outliers in 'Age' using testthat
+test_that("Age values should be between 16 and 80", {
+  expect_true(all(simulated_data$Age >= 16 &
+                    simulated_data$Age <= 80))
+})
 
-# Check if there are no empty strings in 'division', 'state', and 'party' columns
-if (all(analysis_data$division != "" & analysis_data$state != "" & analysis_data$party != "")) {
-  message("Test Passed: There are no empty strings in 'division', 'state', or 'party'.")
-} else {
-  stop("Test Failed: There are empty strings in one or more columns.")
-}
+# 6. Test for Outliers in 'PhysActiveDays' using testthat
+test_that("PhysActiveDays values should be between 1 and 7", {
+  expect_true(all(
+    simulated_data$PhysActiveDays >= 1 &
+      simulated_data$PhysActiveDays <= 7
+  ))
+})
 
-# Check if the 'party' column has at least two unique values
-if (n_distinct(analysis_data$party) >= 2) {
-  message("Test Passed: The 'party' column contains at least two unique values.")
-} else {
-  stop("Test Failed: The 'party' column contains less than two unique values.")
-}
+# 8. Test for Outliers in 'SleepHrsNight' using testthat
+test_that("SleepHrsNight values should be between 2 and 12", {
+  expect_true(all(
+    simulated_data$SleepHrsNight >= 2 &
+      simulated_data$PhysActiveDays <= 12
+  ))
+})
+
+# 9. Check the Distribution of Gender using testthat
+test_that("Gender should only be male or female", {
+  expect_true(all(simulated_data$Gender %in% c("male", "female")))
+})
+
+# 10. Check for Data Type Consistency using testthat
+test_that("Data types should match expectations", {
+  expect_is(simulated_data$BMI, "numeric")
+  expect_is(simulated_data$Poverty, "numeric")
+  expect_is(simulated_data$PhysActiveDays, "numeric")
+  expect_is(simulated_data$Age, "numeric")
+  expect_is(simulated_data$SleepHrsNight, "numeric")
+  expect_is(simulated_data$Gender, "character")
+})
+
+# End of Tests
