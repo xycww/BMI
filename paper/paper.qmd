@@ -307,48 +307,51 @@ The summary statistics presented in @tbl-summary and the histograms of predictor
 
 # Model {#sec-model}
 
-The goal of our modelling strategy is to use multilinear regression model to investigate the relationship between log(BMI) and poverty, Physical Activity Days, Sleep Duration, gender and age. 
-Here we briefly describe the Bayesian analysis model used to investigate... Background details and diagnostics are included in [Appendix -@sec-model-details].
+The goal of this analysis is to use a multiple linear regression model to investigate the relationship between the log-transformed Body Mass Index (log(BMI)) and several predictors: poverty level, physical activity days, sleep duration, gender, and age. These variables were selected based on their known or hypothesized influence on BMI, as supported by prior research and health literature. The log-transformation of BMI is applied to address skewness in the data and to better approximate a normal distribution, which is an assumption for linear regression models.
+
+Further background details and diagnostics are included in [Appendix -@sec-model-details].
 
 ## Model set-up
 
-Define $log(BMI)_i$ as the log(BMI). Then $\beta_i$ are the coefficients associated with each predictor variable, which represent the change in $log(BMI)_i$ for a one-unit change in the corresponding predictor, while holding all other predictors constant.
+Let $log(BMI)_i$ represent the log-transformed BMI for the $i$-th individual. The multiple linear regression model is defined as:
 
-\begin{equation*} 
-\log(\text{BMI}_i) = \beta_0 + \beta_1 \cdot \text{Poverty}_i + \beta_2 \cdot \text{PhysActiveDays}_i + \beta_3 \cdot \text{Age}_i + \beta_4 \cdot \text{SleepHrsNight}_i + \beta_5 \cdot \text{Gender}_i + \epsilon_i
-\end{equation*}
-\begin{equation*}
-\epsilon_i \sim \text{Normal}(0, \sigma^2)
-\end{equation*}
+\begin{equation*} \log(\text{BMI}_i) = \beta_0 + \beta_1 \cdot \text{Poverty}_i + \beta_2 \cdot \text{PhysActiveDays}_i + \beta_3 \cdot \text{Age}_i + \beta_4 \cdot \text{SleepHrsNight}_i + \beta_5 \cdot \text{Gender}_i + \epsilon_i \end{equation*}
 
-We ran the model in R [@citeR] using the lm() function for linear regression, with data manipulation performed using the dplyr package and data reading via the arrow package. No specific priors were applied, as this model relies on ordinary least squares (OLS) estimation, which assumes no prior distributions for the coefficients.
+where:
+
+- $log(BMI)_i$ is the log-transformed body mass index for the $i$-th individual,
+- $\beta_0$ is the intercept, representing the baseline log(BMI) when all predictors are zero,
+- $\beta_1$ through $\beta_5$ are the coefficients associated with each predictor, representing the change in $log(BMI)_i$ for a one-unit increase in the corresponding predictor, while holding all other predictors constant,
+- $\epsilon_i$ is the error term, assumed to follow a normal distribution: $\epsilon_i \sim \text{Normal}(0, \sigma^2)$.
+
+This model was fitted using the lm() function in R [@citeR], with data manipulation performed using the dplyr package and data storage managed by the arrow package. As this is an ordinary least squares (OLS) regression model, no specific priors were applied, and the coefficients were estimated directly from the data.
 
 
 ### Model justification
-We use a multiple linear regression model to estimate the relationship between body mass index (BMI) and various predictors, including poverty index, physical activity days, sleep hours, and gender. The model is designed to predict log-transformed BMI, as this transformation helps normalize the distribution of BMI and address skewness. This approach allows us to explore how these lifestyle and socio-economic factors influence BMI across the sample, using high-quality survey data from the NHANES dataset. We employ predictors like poverty, physical activity, age, sleep hours, and gender to account for key factors that are known to influence BMI, based on existing research.
+We chose a multiple linear regression model because it is well-suited for estimating the relationship between a continuous dependent variable (log-transformed BMI) and multiple independent variables, including both numerical and categorical predictors (e.g., physical activity days, age, poverty, sleep hours, and gender). This method is interpretable and provides straightforward estimates of the effect of each predictor on BMI.
 
-We use linear regression because it is appropriate for modeling the relationship between a continuous outcome variable (log(BMI)) and predictors physical activity, sleep hours, age, poverty, and gender. This method is straightforward to interpret, and the results could quantify the effect of predictors on BMI, making it a suitable choice for analyzing how these factors relate to BMI.
+The decision to log-transform BMI was driven by the variable’s right-skewed distribution. Log-transforming BMI improves the normality of its distribution, which is an important assumption for linear regression. It also helps stabilize the variance across levels of BMI, reducing the potential for heteroscedasticity, and enables a more linear relationship between BMI and the predictors.
 
-We chose to log-transform the BMI variable due to its right-skewed distribution. Log-transforming BMI allows us to better meet the assumptions of linear regression by stabilizing variance and making the relationship between BMI and predictors more linear. This is particularly important for ensuring that the model’s estimates are valid and interpretable.
+`Poverty` was included as a predictor to account for socio-economic status, as prior studies [@webber2023bmi] have shown that lower income is often associated with higher BMI. `PhysActiveDays` captures the number of days an individual engages in physical activity each week, with increased physical activity generally linked to a healthier BMI [@webber2023bmi]. `Age` is included because BMI naturally changes with age, with older individuals often having higher BMI values due to changes in metabolism and lifestyle. `SleepHrsNight` reflects the amount of sleep an individual gets, as insufficient sleep is known to contribute to weight gain and higher BMI [@ekstedt2013sleep]. Lastly, `Gender` is included because research consistently finds gender differences in BMI, with men generally having lower BMI than women [@longosilva2023sleep]. The choice to treat gender as a categorical variable is justified because gender is a nominal variable with distinct, non-ordinal categories. For this analysis, gender was encoded as a binary variable (male, female), which allows us to estimate the effect of gender on BMI.
 
-We included the variable 'Poverty' to account for socio-economic status, as previous research has suggested that lower-income individuals tend to have higher BMI levels (Webber et al., 2023). 'PhysActiveDays' was included to capture the effect of physical activity on BMI, as increased physical activity is typically associated with a lower BMI(Webber et al., 2023). Age was included as a predictor to account for the natural changes in BMI that occur as individuals age. Sleep hours were added because there is evidence that insufficient sleep can contribute to weight gain (Ekstedt et al., 2013). Gender was included as a predictor due to well-established gender differences in BMI, with males typically having lower BMI than females (Longo-Silva et al., 2023).
+The model is based on the assumption that the relationship between the predictors and log(BMI) is linear, and that the errors are normally distributed with constant variance (homoscedasticity). While linear regression provides a reliable and interpretable method for analyzing the relationship between BMI and the chosen predictors, it does not account for potential interactions between variables. This model assumes that the effect of each predictor is independent of the others, which may not fully capture the complexities of the relationships between the predictors and BMI.
 
-We used the default settings in lm() from the stats package, which assumes normally distributed errors and does not apply any specific prior distributions, as this method does not require priors in the same way that Bayesian methods do. This approach provides a reliable way to assess the linear relationship between the predictors and BMI. However, we acknowledge that other methods, such as Bayesian regression or generalized linear models, could be used for more complex modeling, but this approach was selected for its simplicity and interpretability given the goals of the analysis.
+Some other models that were considered were models including interaction terms, such as between poverty and physical activity. However, when these interaction terms were added, the model’s fit decreased (as evidenced by a lower R-squared value) and the residual plot indicated potential model misspecification. Given these results, we decided to exclude interaction terms to avoid overfitting and maintain a more parsimonious model. Future analyses with larger datasets could revisit this approach, potentially including interactions or testing alternative modeling techniques to capture more complex relationships.
 
-Initially, we considered including interaction terms between predictors (such as between poverty and physical activity). However, when these interaction terms were added, the R-squared value decreased, indicating a reduced fit to the data. Additionally, the residual plot showed a noticeable concentration in the residuals, suggesting potential model misspecification or overfitting. As a result, we decided to exclude interaction terms to maintain a more interpretable and well-fitted model. Future analyses could revisit this approach with a larger dataset or alternative modeling strategies to better account for potential interactions.
+The model was implemented using R, and all results were validated through diagnostic checks. Specifically, we examined the residual plots to assess the assumptions of linearity, normality of errors, and homoscedasticity. Additional validation techniques, including out-of-sample testing, could be incorporated in future iterations to further assess the model's predictive performance.
 
-By using this model, we aim to better understand the factors that influence BMI and provide insights into potential public health interventions that could target lifestyle changes and socio-economic factors to reduce BMI and related health risks.
 
 # Results {#sec-result}
 
-Our results are summarized in @tbl-modelresults.
+Our results are summarized in @tbl-modelresults, and the correlations between predictos and log(BMI) are plotted in @fig-predictor-bmi. The findings indicate that the selected factors collectively have a minimal influence on BMI, as evidenced by the low R-squared value (0.0246), This differs from the conclusions of prior studies such as @ekstedt2013sleep and @longosilva2023sleep, which reported stronger effects, likely due to the inclusion of interaction terms that are not part of this analysis. Nevertheless, individual predictors still show significant associations with log(BMI), as indicated by p-values below 0.05 for all predictors except `PhysActiveDays` are lower than 0.05 shows that these predictos are significant. For example, being male increases the average log(BMI) by 0.0172, which is consistent with the findings of @ekstedt2013sleep. Poverty is negatively associated with BMI, where a one-unit increase in the poverty index is associated with a decrease of 0.0109 in the average log(BMI). This result contradicts the findings of @webber2023bmi, which reported a positive relationship between poverty and BMI. The discrepancy may stem from differences in data sources, as this analysis uses NHANES data from the 2009–2010 cycle, whereas @webber2023bmi examined data from 2017 onwards. We also observed a positive relationship between age and BMI, with the average log(BMI) increasing by 0.0014 for each one-unit increase in age. Additionally, our findings confirm that increased sleep duration and physical activity are associated with lower BMI. Specifically, each additional day of physical activity in a week decreases the average log(BMI) by 0.0035, while each additional hour of sleep per night reduces the average log(BMI) by 0.0108. These observations align with the conclusions of @ekstedt2013sleep and @longosilva2023sleep, supporting the hypothesis that healthier lifestyles contribute to lower BMI levels.
+
 
 ```{r}
 #| warning: false
 #| message: false
 #| echo: false
 #| label: tbl-modelresults
-#| tbl-cap: "Summary statistics for variables in the NHANES dataset."
+#| tbl-cap: "This table presents the estimated coefficients, standard errors, test statistics, and p-values for the predictors included in the multiple linear regression model analyzing the relationship between log-transformed BMI and poverty level, physical activity days, sleep duration, gender, and age. The R-squared value indicates the proportion of variance in log-transformed BMI explained by the model."
 
 # Load the saved linear model
 lm_model <- readRDS("../models/lm_model.rds")
@@ -369,7 +372,7 @@ model_summary_with_r2 <- model_summary %>%
 
 # Print the model summary table using knitr::kable
 model_summary_with_r2 %>%
-  kable(caption = "Summary of the Linear Model for Log(BMI)")
+  kable()
 ```
 
 ```{r}
@@ -377,8 +380,8 @@ model_summary_with_r2 %>%
 #| message: false
 #| echo: false
 #| label: fig-predictor-bmi
-#| fig-cap: "Scatter plots of predictors vs. log(BMI) with fitted regression lines."
-#| fig-subcap: ["Age vs. log(BMI)","Gender vs. log(BMI)", "Poverty vs. log(BMI)", "SleepHrsNight vs. log(BMI)","Physical Active Days vs. log(BMI)"]
+#| fig-cap: "This figure presents the relationships between log-transformed BMI and the predictors in the model. `Panel a` shows the possitive relationship between age and log(BMI). `Panel b` compares the distribution of log(BMI) across genders. `Panel c` illustrates the negative correlation between poverty level and log(BMI), while `Panel d` depicts the negative relationship between sleep duration (in hours) and log(BMI). Finally, `Panel e` shows the negative correlation between the number of physically active days per week and log(BMI)"
+#| fig-subcap: ["Age vs. log(BMI)","Gender vs. log(BMI)", "Poverty vs. log(BMI)", "Sleep Duration vs. log(BMI)","Physical Active Days vs. log(BMI)"]
 #| layout-ncol: 3
 #| fig.width: 8
 #| fig.height: 12
@@ -389,14 +392,14 @@ plot_age_bmi <- ggplot(nhanes_data, aes(x = Age, y = log(BMI))) +
   geom_smooth(method = "lm", col = "red", se = FALSE) +
   labs(x = "Age", y = "log(BMI)") +
   theme_minimal() +
-  theme(axis.title = element_text(size = 10), axis.text = element_text(size = 8))
+  theme(axis.title = element_text(size = 20), axis.text = element_text(size = 20))
 
 # Box plot for Gender vs. log(BMI)
 plot_gender_bmi <- ggplot(nhanes_data, aes(x = Gender, y = log(BMI))) +
   geom_boxplot(fill = "lightblue", color = "black") +  # Box plot
   labs(x = "Gender", y = "log(BMI)") +
   theme_minimal() +
-  theme(axis.title = element_text(size = 10), axis.text = element_text(size = 8))
+  theme(axis.title = element_text(size = 20), axis.text = element_text(size = 20))
 
 # Scatter plot for Poverty vs. log(BMI)
 plot_poverty_bmi <- ggplot(nhanes_data, aes(x = Poverty, y = log(BMI))) +
@@ -404,7 +407,7 @@ plot_poverty_bmi <- ggplot(nhanes_data, aes(x = Poverty, y = log(BMI))) +
   geom_smooth(method = "lm", col = "red", se = FALSE) +
   labs(x = "Poverty", y = "log(BMI)") +
   theme_minimal() +
-  theme(axis.title = element_text(size = 10), axis.text = element_text(size = 8))
+  theme(axis.title = element_text(size = 20), axis.text = element_text(size = 20))
 
 # Scatter plot for SleepHrsNight vs. log(BMI)
 plot_sleep_bmi <- ggplot(nhanes_data, aes(x = SleepHrsNight, y = log(BMI))) +
@@ -412,7 +415,7 @@ plot_sleep_bmi <- ggplot(nhanes_data, aes(x = SleepHrsNight, y = log(BMI))) +
   geom_smooth(method = "lm", col = "red", se = FALSE) +
   labs(x = "SleepHrsNight", y = "log(BMI)") +
   theme_minimal() +
-  theme(axis.title = element_text(size = 10), axis.text = element_text(size = 8))
+  theme(axis.title = element_text(size = 20), axis.text = element_text(size = 20))
 
 # Scatter plot for PhysActiveDays vs. log(BMI)
 plot_physactive_bmi <- ggplot(nhanes_data, aes(x = PhysActiveDays, y = log(BMI))) +
@@ -420,7 +423,7 @@ plot_physactive_bmi <- ggplot(nhanes_data, aes(x = PhysActiveDays, y = log(BMI))
   geom_smooth(method = "lm", col = "red", se = FALSE) +
   labs(x = "PhysActiveDays", y = "log(BMI)") +
   theme_minimal() +
-  theme(axis.title = element_text(size = 10), axis.text = element_text(size = 8))
+  theme(axis.title = element_text(size = 20), axis.text = element_text(size = 20))
 
 plot_age_bmi
 plot_gender_bmi
@@ -436,7 +439,7 @@ plot_physactive_bmi
 
 ## What is done in this paper?
 
-page This paper explores the relationship between Body Mass Index (BMI) and several key lifestyle and demographic factors, including poverty, physical activity, age, sleep duration, and gender. The analysis is performed using a linear regression model, which allows us to estimate how each of these predictors influences BMI, as measured by its log-transformed values. The dataset used for this study is the cleaned data from the US National Health and Nutrition Examination Survey (NHANES), which contains a broad range of health-related information from a representative sample of the U.S. population.
+This paper explores the relationship between Body Mass Index (BMI) and several key lifestyle and demographic factors, including poverty, physical activity, age, sleep duration, and gender. The analysis is performed using a linear regression model, which allows us to estimate how each of these predictors influences BMI, as measured by its log-transformed values. The dataset used for this study is the cleaned data from the US National Health and Nutrition Examination Survey (NHANES), which contains a broad range of health-related information from a representative sample of the U.S. population.
 
 The model aims to quantify the impact of each predictor on BMI while controlling for the influence of other variables. The regression analysis reveals significant relationships between BMI and all the predictors considered, with some factors having a negative impact (e.g., poverty, physical activity) and others having a positive one (e.g., age, sleep hours, gender). This model sheds light on the ways in which various lifestyle choices and demographic factors may contribute to BMI variation across different segments of the population.
 
