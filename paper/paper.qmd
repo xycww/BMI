@@ -24,42 +24,54 @@ library(knitr)
 library(patchwork)
 library(arrow)
 library(broom)
+library(kableExtra)
 ```
 
 
 # Introduction
 
-Body mass index (BMI) is a widely used measure for assessing whether an individual's weight is within a healthy range, with significant implications for health outcomes such as heart disease, diabetes, and mortality. Given its importance, understanding the factors that influence BMI, such as socioeconomic and lifestyle variables, has become an essential area of public health research. This paper aims to address the relationship about how variables like poverty, physical activity, age, sleep duration, and gender interact to influence BMI outcomes.
+Body mass index (BMI) is a widely used measure for assessing whether an individual's weight is within a healthy range, with significant implications for health outcomes such as heart disease, diabetes, and mortality. Given its importance, understanding the factors that influence BMI, such as socioeconomic and lifestyle variables, has become an essential area of public health research. This paper aims to address the relationship about how variables like poverty, physical activity, sleep duration, age and gender interact to influence BMI outcomes.
 
-Using data from the US National Health and Nutrition Examination Survey (NHANES), this study models log-transformed BMI as a function of five predictors: poverty level, physical activity frequency (measured in days), age, sleep duration, and gender. A multilinear regression approach was employed to quantify these relationships and identify patterns within the dataset.
+Using resampled version of the data from the US National Health and Nutrition Examination Survey (NHANES), this study models log-transformed BMI as a function of five predictors: poverty level, physical activity frequency (measured in days), age, sleep duration, and gender. A multiple linear regression approach was employed to quantify these relationships and identify patterns within the dataset. The estimand in this study is the expected change in log-transformed BMI resulting from a one-unit change in each predictor variable, holding all other variables constant.
 
-The results indicate that while the correlations between BMI and these predictors are generally weak, several significant relationships are observed. Poverty is associated with a 0.01 decrease in log(BMI), suggesting that higher income corresponds to lower BMI levels. Physical activity frequency also demonstrates a negative relationship with BMI; each additional day of physical activity per week is associated with a 0.004 decrease in log(BMI), indicating a modest benefit of regular exercise for maintaining lower BMI. Sleep duration shows a negative relationship, where one additional hour of sleep per night is linked to a 0.01 decrease in log(BMI). In contrast, age is positively associated with BMI, with each additional year corresponding to a 0.001 increase in log(BMI), reflecting the gradual weight gain commonly seen with aging. Lastly, being male is associated with a 0.02 increase in log(BMI) compared to females, suggesting possible physiological or behavioral differences between genders.
+The results indicate that while the correlations between log(BMI) and these predictors are generally weak, several significant relationships are observed. Poverty is associated with a 0.01 decrease in log(BMI), suggesting that higher income corresponds to lower BMI levels. Physical activity frequency also demonstrates a negative relationship with BMI; each additional day of physical activity per week is associated with a 0.004 decrease in log(BMI), indicating a modest benefit of regular exercise for maintaining lower BMI. Sleep duration shows a negative relationship, where one additional hour of sleep per night is linked to a 0.01 decrease in log(BMI). In contrast, age is positively associated with BMI, with each additional year corresponding to a 0.001 increase in log(BMI), reflecting the gradual weight gain commonly seen with aging. Lastly, being male is associated with a 0.02 increase in log(BMI) compared to females, suggesting possible physiological or behavioral differences between genders.
 
 These results are essential for informing public health initiatives aimed at addressing weight-related health challenges. By identifying specific socioeconomic and lifestyle factors that influence BMI, this research provides a foundation for developing targeted interventions and strategies to promote healthier weight maintenance.
 
-The remainder of this paper is structured as follows. @sec-data....
+The remainder of this paper is structured as follows. @sec-data provides an overview and measurement of the dataset, as well as an introduction to the variables. @sec-model presents the model setup and justification. @sec-result discusses the results of the model. @sec-discussion provides a detailed discussion of the results. @sec-data-details offers a more in-depth justification of the data and discusses the surveys and sampling methods. Finally, @sec-model-details examines the diagnostics of the model by analyzing the assumptions of linear regression.
 
 # Data {#sec-data}
 
 ## Overview
 
-The dataset used in this analysis is derived from the US National Health and Nutrition Examination Survey (NHANES), version 2.1.0. This version of the dataset includes survey results collected between October 2009 and December 2010. NHANES is a long-running study conducted by the US National Center for Health Statistics (NCHS) that has been gathering health and nutrition data since the early 1960s. Since 1999, approximately 5,000 individuals from various age groups have been interviewed annually in their homes and undergone health examinations at mobile examination centers (MEC). 
-Two datasets in this package were considered for this analysis: NHANESraw, which is the original raw data, and NHANES, a resampled version of the NHANES data. NHANESraw contains the original survey data with 20,293 observations and additional variables describing the sample weighting scheme, while NHANES is a simplified version with 10,000 resampled observations to account for oversampling effects. NHANES is used in this analysis due to its ability to reduce the potential biases from the complex survey design in NHANESraw. Additional details about this choice are provided in Appendix A. The data used here was originally compiled by Michelle Dalrymple from Cashmere High School and Chris Wild from the University of Auckland for educational purposes.
+The dataset used in this analysis is derived from the 2009-2010 cycle of the US National Health and Nutrition Examination Survey (NHANES). This version of the dataset includes survey results collected between October 2009 and December 2010. NHANES is a long-running study conducted by the US National Center for Health Statistics (NCHS) that has been gathering health and nutrition data since the early 1960s. Since 1999, approximately 5,000 individuals from various age groups have been interviewed annually in their homes and undergone health examinations at mobile examination centers (MEC). 
 
-For the current study, the data was cleaned to focus on variables pertinent to the analysis of BMI. Specifically, variables such as BMI, poverty index, physical activity days, sleep hours, gender, and age were retained. After cleaning the missing values in the dataset, 3,573 observations remained. 
+Two datasets in this package were considered for this analysis: NHANESraw, which is the original raw data, and NHANES, a resampled version of the NHANES data. NHANESraw contains the original survey data with 20,293 observations and additional variables describing the sample weighting scheme, while NHANES is a simplified version with 10,000 resampled observations to account for oversampling effects. NHANES is used in this analysis due to its ability to reduce the potential biases from the complex survey design in NHANESraw. Additional details about this choice are provided in @sec-data-justication. The data used here was originally compiled by Michelle Dalrymple from Cashmere High School and Chris Wild from the University of Auckland for educational purposes.
 
-The dataset was prepared, cleaned, and analyzed using R [@citeR] with the following libraries: tidyverse [@tidyverse] and dplyr [@dplyr] for data manipulation, ggplot2 [@ggplot2] and patchwork [@patchwork] for visualizations, and broom [@broom] for model summaries. The arrow [@arrow] library was used for efficient data storage and retrieval, while knitr [@knitr] facilitated report generation. The NHANES package [@nhanes] provided access to the dataset, and styler [@styler] was employed to ensure well-structured R code. Additionally, testthat [@testthat] and pointblank [@pointblank] were utilized for data validation and testing.
+For the current study, the data was cleaned to focus on variables pertinent to the analysis of BMI. Specifically, variables such as BMI, poverty index, physical activity days, sleep hours, gender, and age were retained. After cleaning the missing values and the duplicate rows in the dataset, 2841 observations remained. 
 
-A summary table of cleaned data is shown in table 1.
+The dataset was prepared, cleaned, and analyzed using R [@citeR] with the following libraries: tidyverse [@tidyverse] and dplyr [@dplyr] for data manipulation, ggplot2 [@ggplot2], kableExtra [@kableExtra] and patchwork [@patchwork] for visualizations, and broom [@broom] for model summaries. The arrow [@arrow] library was used for efficient data storage and retrieval, while knitr [@knitr] facilitated report generation. The NHANES package [@nhanes] provided access to the dataset, and styler [@styler] was employed to ensure well-structured R code. Additionally, testthat [@testthat] and pointblank [@pointblank] were utilized for data validation and testing.
+
+A summary table of cleaned data is shown in @tbl-summary.
 
 
 ```{r}
 #| echo: false
-#| label: table-summary
-#| tbl-cap: "Summary statistics for variables in the NHANES dataset."
+#| label: tbl-summary
+#| tbl-cap: "Summary statistics for `BMI`, `log(BMI)`, `Poverty Index`, `Physical Activity Days`, `Sleep Hours`, `Age`, and `Gender`."
 
 # Load the data
-nhanes_data <- read_parquet("/Users/hxw/marriage/data/02-analysis_data/clean_data.parquet")
+nhanes_data <- read_parquet("../data/02-analysis_data/clean_data.parquet")
+
+# Calculate the counts of males and females
+gender_counts <- nhanes_data %>%
+  count(Gender) %>%
+  pivot_wider(names_from = Gender, values_from = n, values_fill = 0)
+
+# Extract the number of females and males
+num_females <- gender_counts$female[1]  
+num_males <- gender_counts$male[1]     
+
 
 # Create summary statistics for each variable
 summary_table <- nhanes_data %>%
@@ -69,8 +81,9 @@ summary_table <- nhanes_data %>%
       "log(BMI)",
       "Poverty Index",
       "Physical Activity Days",
+      "Sleep Hours", 
       "Age",
-      "Sleep Hours"
+      "Gender"
     ),
     Mean = round(c(
       mean(BMI),
@@ -78,7 +91,8 @@ summary_table <- nhanes_data %>%
       mean(Poverty),
       mean(PhysActiveDays),
       mean(Age),
-      mean(SleepHrsNight)
+      mean(SleepHrsNight),
+      NA
     ), 3),
     Median = round(c(
       median(BMI),
@@ -86,24 +100,27 @@ summary_table <- nhanes_data %>%
       median(Poverty),
       median(PhysActiveDays),
       median(Age),
-      median(SleepHrsNight)
+      median(SleepHrsNight),
+      NA
     ), 3),
-    Min = round(c(
-      min(BMI),
-      min(log(BMI)),
-      min(Poverty),
-      min(PhysActiveDays),
-      min(Age),
-      min(SleepHrsNight)
-    ), 3),
-    Max = round(c(
-      max(BMI),
-      max(log(BMI)),
-      max(Poverty),
-      max(PhysActiveDays),
-      max(Age),
-      max(SleepHrsNight)
-    ), 3),
+    Min = c(
+      round(min(BMI), 3),
+      round(min(log(BMI)), 3),
+      round(min(Poverty), 3),
+      round(min(PhysActiveDays), 3),
+      round(min(Age), 3),
+      round(min(SleepHrsNight), 3),
+      paste(num_females, "(females)")
+    ),
+    Max = c(
+      round(max(BMI), 3),
+      round(max(log(BMI), 3)),
+      round(max(Poverty), 3),
+      round(max(PhysActiveDays), 3),
+      round(max(Age), 3),
+      round(max(SleepHrsNight), 3),
+      paste(num_males, "(males)")
+    ),
     `1st Quantile` = round(
       c(
         quantile(BMI, 0.25),
@@ -111,7 +128,8 @@ summary_table <- nhanes_data %>%
         quantile(Poverty, 0.25),
         quantile(PhysActiveDays, 0.25),
         quantile(Age, 0.25),
-        quantile(SleepHrsNight, 0.25)
+        quantile(SleepHrsNight, 0.25),
+        NA
       ),
       3
     ),
@@ -122,55 +140,57 @@ summary_table <- nhanes_data %>%
         quantile(Poverty, 0.75),
         quantile(PhysActiveDays, 0.75),
         quantile(Age, 0.75),
-        quantile(SleepHrsNight, 0.75)
+        quantile(SleepHrsNight, 0.75),
+        NA
       ),
       3
     )
   )
 
-# Create the summary table using kable
+# Render the table without styling
 summary_table %>%
-  kable()
+  kable(
+    format = "html",
+    col.names = c(
+      "Variable", "Mean", "Median", "Min", "Max", 
+      "1st Quantile", "3rd Quantile"
+    )
+  )
 ```
 
 
 ```{r}
 #| warning: false
 #| message: false
-#| label: fig-bmi-logbmi
+#| label: fig-bmi
 #| fig-cap: "Distributions of BMI and log(BMI) in the NHANES dataset."
+#| fig-subcap: ["Distribution of BMI", "Distribution of log(BMI)"]
 #| echo: false
-#| fig.width: 8
-#| fig.height: 4
+#| layout-ncol: 2
+#| fig.width: 4
+#| fig.height: 6
 
 # Create histograms with customized text sizes
 hist_bmi <- ggplot(nhanes_data, aes(x = BMI)) +
   geom_histogram(binwidth = 1.5,
                  fill = "lightblue",
                  color = "black") +
-  labs(title = "BMI Distribution", x = "BMI", y = "Frequency") +
+  labs(x = "BMI", y = "Frequency") +
   theme_minimal() +
-  theme(
-    plot.title = element_text(size = 14),
-    axis.title = element_text(size = 12),
-    axis.text = element_text(size = 10)
-  )
+  theme(axis.title = element_text(size = 12),
+        axis.text = element_text(size = 12))
 
 hist_log_bmi <- ggplot(nhanes_data, aes(x = log(BMI))) +
   geom_histogram(binwidth = 0.1,
                  fill = "lightblue",
                  color = "black") +
-  labs(title = "log(BMI) Distribution", x = "log(BMI)", y = "Frequency") +
+  labs(x = "log(BMI)", y = "Frequency") +
   theme_minimal() +
-  theme(
-    plot.title = element_text(size = 14),
-    axis.title = element_text(size = 12),
-    axis.text = element_text(size = 10)
-  )
+  theme(axis.title = element_text(size = 12),
+        axis.text = element_text(size = 10))
 
-# Figure 1: BMI and log(BMI)
-figure_bmi <- (hist_bmi | hist_log_bmi)
-figure_bmi
+hist_bmi
+hist_log_bmi
 
 ```
 
@@ -180,7 +200,9 @@ figure_bmi
 #| message: false
 #| label: fig-predictor-distributions
 #| fig-cap: "Distributions of predictor variables in the NHANES dataset, including Poverty, Physical Activity Days, Age, Sleep Hours, and Gender."
+#| fig-subcap: ["Distribution of Poverty Index", "Physical Activity Days Distribution", "Age Distribution", "Sleep Hours Distribution", "Gender Distribution"]
 #| echo: false
+#| layout-ncol: 3
 #| fig.width: 8
 #| fig.height: 12
 
@@ -190,13 +212,10 @@ hist_poverty <- ggplot(nhanes_data, aes(x = Poverty)) +
     fill = "lightgreen",
     color = "black"
   ) +
-  labs(title = "Poverty Index Distribution", x = "Poverty Index", y = "Frequency") +
+  labs(x = "Poverty Index", y = "Frequency") +
   theme_minimal() +
-  theme(
-    plot.title = element_text(size = 14),
-    axis.title = element_text(size = 12),
-    axis.text = element_text(size = 10)
-  )
+  theme(axis.title = element_text(size = 24),
+        axis.text = element_text(size = 18))
 
 hist_physactive <- ggplot(nhanes_data, aes(x = PhysActiveDays)) +
   geom_histogram(
@@ -204,13 +223,10 @@ hist_physactive <- ggplot(nhanes_data, aes(x = PhysActiveDays)) +
     fill = "lightcoral",
     color = "black"
   ) +
-  labs(title = "Physical Activity Days Distribution", x = "Physical Activity Days", y = "Frequency") +
+  labs(x = "Physical Activity Days", y = "Frequency") +
   theme_minimal() +
-  theme(
-    plot.title = element_text(size = 12),
-    axis.title = element_text(size = 10),
-    axis.text = element_text(size = 8)
-  )
+  theme(axis.title = element_text(size = 24),
+        axis.text = element_text(size = 18))
 
 hist_age <- ggplot(nhanes_data, aes(x = Age)) +
   geom_histogram(
@@ -218,42 +234,32 @@ hist_age <- ggplot(nhanes_data, aes(x = Age)) +
     fill = "lightyellow",
     color = "black"
   ) +
-  labs(title = "Age Distribution", x = "Age", y = "Frequency") +
+  labs(x = "Age", y = "Frequency") +
   theme_minimal() +
-  theme(
-    plot.title = element_text(size = 12),
-    axis.title = element_text(size = 10),
-    axis.text = element_text(size = 8)
-  )
+  theme(axis.title = element_text(size = 24),
+        axis.text = element_text(size = 18))
 
 hist_sleep <- ggplot(nhanes_data, aes(x = SleepHrsNight)) +
   geom_histogram(binwidth = 1,
                  fill = "lightpink",
                  color = "black") +
-  labs(title = "Sleep Hours Distribution", x = "Sleep Hours", y = "Frequency") +
+  labs(x = "Sleep Hours", y = "Frequency") +
   theme_minimal() +
-  theme(
-    plot.title = element_text(size = 12),
-    axis.title = element_text(size = 10),
-    axis.text = element_text(size = 8)
-  )
+  theme(axis.title = element_text(size = 24),
+        axis.text = element_text(size = 18))
 
 hist_gender <- ggplot(nhanes_data, aes(x = Gender)) +
   geom_bar(fill = "lightgray", color = "black") +
-  labs(title = "Gender Distribution", x = "Gender", y = "Count") +
+  labs(x = "Gender", y = "Count") +
   theme_minimal() +
-  theme(
-    plot.title = element_text(size = 12),
-    axis.title = element_text(size = 10),
-    axis.text = element_text(size = 8)
-  )
+  theme(axis.title = element_text(size = 24),
+        axis.text = element_text(size = 18))
 
-# Figure 2: Predictor Variables
-figure_predictors <- (hist_poverty | hist_physactive | hist_age) /
-  (hist_sleep | hist_gender) +
-  plot_annotation(caption = "Figure 2: Distributions of predictor variables in the NHANES dataset, including Poverty, Physical Activity Days, Age, Sleep Hours, and Gender.",
-                  theme = theme(plot.caption = element_text(hjust = 0.5, size = 12)))
-figure_predictors
+hist_poverty
+hist_physactive
+hist_age
+hist_sleep
+hist_gender
 
 ```
 
@@ -261,39 +267,45 @@ figure_predictors
 
 ## Measurement
 	
-The NHANES dataset aims to provide a comprehensive view of the health and nutritional status of the U.S. population, transforming real-world phenomena into structured data entries. The data collection process begins with the selection of a sample from the U.S. population using a complex, multistage probability sampling design. This ensures that the sample is representative of the civilian, non-institutionalized population, while also oversampling certain subgroups, such as racial minorities, to ensure sufficient data for subgroup analysis. Once selected, individuals are surveyed on various health and lifestyle factors, such as their eating habits, physical activity, medical conditions, and demographics. The participants are then examined in a Mobile Examination Center (MEC) where they undergo physical assessments, laboratory tests, and interviews.
+The NHANES dataset provides a comprehensive view of the health and nutritional status of the U.S. population, transforming real-world phenomena into structured data entries. The data collection process begins with the selection of a sample from the U.S. population using a complex, multistage probability sampling design. This ensures that the sample is representative of the civilian, non-institutionalized population, while also oversampling certain subgroups, such as racial minorities, to ensure sufficient data for subgroup analysis [@sample]. Once selected, individuals are surveyed on various health and lifestyle factors, such as their eating habits, physical activity, medical conditions, and demographics. The participants are then examined in a Mobile Examination Center (MEC) where they undergo physical assessments, laboratory tests, and interviews.
 
-The process of measurement involves both self-reported data and direct observations. For example, data on an individual’s lifestyle habits, such as hours of physical activity, alcohol consumption, or smoking, is obtained through self-reports in interviews. These responses are recorded as variables in the dataset, and any missing values or refusals are appropriately coded. On the other hand, physical measurements like height, weight, blood pressure, and cholesterol levels are directly taken in the MEC using medical equipment. These physical measurements are then processed and entered into the dataset. For each individual, these variables represent their health status at a specific time, providing a snapshot that is used for statistical analysis.
+The process of measurement involves both self-reported data and direct observations. For example, data on an individual’s lifestyle habits, such as hours of physical activity, alcohol consumption, or smoking, is obtained through self-reports in interviews [@plan]. These responses are recorded as variables in the dataset, and any missing values or refusals are appropriately coded. On the other hand, physical measurements like height, weight, blood pressure, and cholesterol levels are directly taken in the MEC using medical equipment [@plan]. These physical measurements are then processed and entered into the dataset. For each individual, these variables represent their health status at a specific time, providing a snapshot that is used for statistical analysis.
 
-Importantly, NHANES also accounts for missing data, a common occurrence in surveys. Missing values may arise if a participant refuses to answer a particular question or does not undergo a specific examination. These missing values are systematically handled by assigning special codes such as a period (.) for numeric variables or blanks for character variables, ensuring that they are not treated as valid data. Furthermore, to mitigate potential bias due to missing data, adjustments are made using sample weights to produce national estimates that are representative of the U.S. population.
+Importantly, NHANES also accounts for missing data, a common occurrence in surveys. Missing values may arise if a participant refuses to answer a particular question or does not undergo a specific examination. These missing values are systematically handled by assigning special codes such as a period (.) for numeric variables or blanks for character variables, ensuring that they are not treated as valid data [@analytic]. Furthermore, to mitigate potential bias due to missing data, adjustments are made using sample weights to produce national estimates that are representative of the U.S. population.
 
-In the case of variables related to health measurements, the data undergo further validation through the use of sampling weights and variance estimation to ensure that the final dataset accurately reflects the population’s health status. This process involves using the complex survey design parameters, such as the primary sampling unit (PSU) and strata, to adjust the data accordingly, so that analyses can account for oversampling of certain subpopulations and non-response during data collection. Thus, every entry in the dataset is an outcome of rigorous data collection methods, reflecting a specific health measure or lifestyle factor that has been transformed into a quantifiable variable, which can then be analyzed and used for public health research.
+In the case of variables related to health measurements, the data undergo further validation through the use of sampling weights and variance estimation to ensure that the final dataset accurately reflects the population’s health status [@sample]. This process involves using the complex survey design parameters, such as the primary sampling unit (PSU) and strata, to adjust the data accordingly, so that analyses can account for oversampling of certain subpopulations and non-response during data collection.
+
+For this analysis, a resampled version of the NHANES dataset, referred to as NHANES, was used. NHANES includes 10,000 resampled observations, and it is derived from the original NHANESraw dataset, which contains 20,293 observations. The resampling process helps reduce biases associated with the complex survey design in the raw dataset, particularly biases arising from oversampling specific subpopulations. This simplified dataset eliminates the effects of oversampling and allows for more straightforward analysis.
+
+The resampled NHANES dataset is structured to reflect a simplified, but still representative, version of the U.S. population, addressing potential sampling imbalances that might arise in the raw data due to overrepresentation of certain groups [@nhanes]. It is particularly important in this analysis because it minimizes biases related to the complex survey design, making it more suitable for modeling relationships between different factors and log(BMI). By resampling and adjusting for the complex survey design parameters, NHANES ensures that the relationships observed between variables are more accurate and generalizable to the larger population.
+
+Thus, every entry in the NHANES dataset is an outcome of rigorous data collection methods, reflecting a specific health measure or lifestyle factor transformed into a quantifiable variable. These variables have been adjusted to account for complex survey design effects and missing data, ensuring the dataset used in the analysis is robust, representative, and suitable for informing public health research.
 
 ## Outcome variables
 
-The primary outcome variable in this study is log-transformed BMI, a measure of body mass index adjusted to normalize its distribution. BMI is widely used to assess healthy weight relative to height, and its relevance to health outcomes such as cardiovascular disease and diabetes has been well-established. For this analysis, BMI was log-transformed to address its skewed distribution shown in Figure 1, providing a better fit for statistical modeling.
+The primary outcome variable in this study is log-transformed BMI, a measure of body mass index adjusted to normalize its distribution. BMI is widely used to assess healthy weight relative to height, and its relevance to health outcomes such as cardiovascular disease and diabetes has been well-established. For this analysis, BMI was log-transformed to address its skewed distribution shown in @fig-bmi, providing a better fit for statistical modeling.
 
 
 ## Predictor variables
-The following predictor variables were examined to assess the potential lifestyle and socio-economic factors influencing BMI:
+The following predictor variables were examined to assess the potential lifestyle and socio-economic factors influencing log(BMI) across different gender and age groups:
 
 - `Poverty`: This variable represents the ratio of a family’s income to the federal poverty guidelines, with lower values indicating higher levels of poverty.
 - `Physical Activity Days (PhysActiveDays)`: The number of days in a typical week that a participant engages in moderate or vigorous physical activity. This variable is recorded for individuals aged 12 years and older.
-- `Sleep Duration (SleepHrsNight)`: The self-reported average number of hours of sleep a participant receives on weekdays or workdays. This variable is recorded for individuals aged 16 years and older.
+- `Sleep Hour (SleepHrsNight)`: The self-reported average number of hours of sleep a participant receives on weekdays or workdays. This variable is recorded for individuals aged 16 years and older.
 - `Gender`: The gender of the participant, categorized as male or female.
 - `Age`: The participant's age at the time of screening, recorded in years. For participants aged 80 years or older, the age was recorded as 80.
 
 ### Distribution of Predictor Variables
-The summary statistics presented in Figure 1 and the histograms of predictor variables shown in Figure 3 provide insights into the distribution of these variables:
+The summary statistics presented in @tbl-summary and the histograms of predictor variables shown in @fig-predictor-distributions provide insights into the distribution of these variables:
 
 - `Poverty`: The poverty index ranges from 0 to 5, with a mean of 3.077. The histogram indicates a marked left skew, suggesting that a significant proportion of participants fall into lower income categories.
 - `Physical Activity Days (PhysActiveDays)`: The number of days participants engage in physical activity ranges from 2 to 7, with a mean value of 3.7 days per week.
-- `Sleep Duration (SleepHrsNight)`:The number of hours participants sleep each night ranges from 2 to 12 hours, with a mean of 6.96 hours. The distribution of this variable approximates a normal curve.
+- `Sleep Hour (SleepHrsNight)`:The number of hours participants sleep each night ranges from 2 to 12 hours, with a mean of 6.96 hours. The distribution of this variable approximates a normal curve.
 - `Gender`: The gender distribution is nearly balanced, with 1,814 male participants and 1,759 female participants.
 - `Age`: The age of participants spans from 16 to 80 years, with a mean age of 43.61 years. The histogram shows a slight right skew, with a concentration of participants aged between 29 and 56 years.
 
 
-# Model
+# Model {#sec-model}
 
 The goal of our modelling strategy is to use multilinear regression model to investigate the relationship between log(BMI) and poverty, Physical Activity Days, Sleep Duration, gender and age. 
 Here we briefly describe the Bayesian analysis model used to investigate... Background details and diagnostics are included in [Appendix -@sec-model-details].
@@ -313,7 +325,7 @@ We ran the model in R [@citeR] using the lm() function for linear regression, wi
 
 
 ### Model justification
-We use a multiple linear regression model to estimate the relationship between body mass index (BMI) and various predictors, including poverty index, physical activity days, age, sleep hours, and gender. The model is designed to predict log-transformed BMI, as this transformation helps normalize the distribution of BMI and address skewness. This approach allows us to explore how these lifestyle and socio-economic factors influence BMI across the sample, using high-quality survey data from the NHANES dataset. We employ predictors like poverty, physical activity, age, sleep hours, and gender to account for key factors that are known to influence BMI, based on existing research.
+We use a multiple linear regression model to estimate the relationship between body mass index (BMI) and various predictors, including poverty index, physical activity days, sleep hours, and gender. The model is designed to predict log-transformed BMI, as this transformation helps normalize the distribution of BMI and address skewness. This approach allows us to explore how these lifestyle and socio-economic factors influence BMI across the sample, using high-quality survey data from the NHANES dataset. We employ predictors like poverty, physical activity, age, sleep hours, and gender to account for key factors that are known to influence BMI, based on existing research.
 
 We use linear regression because it is appropriate for modeling the relationship between a continuous outcome variable (log(BMI)) and predictors physical activity, sleep hours, age, poverty, and gender. This method is straightforward to interpret, and the results could quantify the effect of predictors on BMI, making it a suitable choice for analyzing how these factors relate to BMI.
 
@@ -327,7 +339,7 @@ Initially, we considered including interaction terms between predictors (such as
 
 By using this model, we aim to better understand the factors that influence BMI and provide insights into potential public health interventions that could target lifestyle changes and socio-economic factors to reduce BMI and related health risks.
 
-# Results
+# Results {#sec-result}
 
 Our results are summarized in @tbl-modelresults.
 
@@ -339,7 +351,7 @@ Our results are summarized in @tbl-modelresults.
 #| tbl-cap: "Summary statistics for variables in the NHANES dataset."
 
 # Load the saved linear model
-lm_model <- readRDS("/Users/hxw/marriage/models/lm_model.rds")
+lm_model <- readRDS("../models/lm_model.rds")
 # Tidy the model summary
 model_summary <- tidy(lm_model)
 # Extract R-squared value
@@ -420,9 +432,9 @@ plot_physactive_bmi
 
 
 
-# Discussion
+# Discussion {#sec-discussion}
 
-## What is done in this paper? {#sec-first-point}
+## What is done in this paper?
 
 page This paper explores the relationship between Body Mass Index (BMI) and several key lifestyle and demographic factors, including poverty, physical activity, age, sleep duration, and gender. The analysis is performed using a linear regression model, which allows us to estimate how each of these predictors influences BMI, as measured by its log-transformed values. The dataset used for this study is the cleaned data from the US National Health and Nutrition Examination Survey (NHANES), which contains a broad range of health-related information from a representative sample of the U.S. population.
 
@@ -460,12 +472,12 @@ Moving forward, there are several steps that could be taken to address these wea
 
 \appendix
 
-# Appendix {-}
+# Appendix {{#sec-append}}
 
 
 # Additional data details {#sec-data-details}
 
-## Data Justication
+## Data Justication {#sec-data-justication}
 The NHANES_raw dataset provides a comprehensive collection of data from the American National Health and Nutrition Examination Surveys (NHANES), including 20,293 observations spanning 75 variables. This dataset includes additional variables that describe the sample weighting scheme employed to account for the complex survey design. However, despite its breadth and richness, NHANES_raw introduces complexities in analysis due to the oversampling of certain subpopulations, such as racial minorities. This sampling approach necessitates the use of survey weights and other design-specific parameters to obtain unbiased estimates and valid statistical inferences.
 
 Naïve analysis of NHANES_raw—without accounting for the sample design and weights—can lead to significant biases and erroneous conclusions. For instance, the racial composition in NHANES_raw does not represent the true demographic distribution of the U.S. population due to oversampling adjustments. As a result, researchers must account for these weights in any analysis to avoid overstating significance levels and generating inaccurate results. This makes NHANES_raw unsuitable for straightforward analysis in contexts where the primary goal is to demonstrate simple statistical relationships, especially for educational purposes.

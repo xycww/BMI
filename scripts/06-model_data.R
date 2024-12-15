@@ -1,5 +1,5 @@
 #### Preamble ####
-# Purpose: Models the marriage rate
+# Purpose: Model log(BMI) as a function of Poverty, PhysActiveDays, SleepHrsNight, Gender and Age
 # Author: Sakura Hu
 # Date: 01 December 2024
 # Contact: sakura.hu@mail.utoronto.ca

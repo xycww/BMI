@@ -5,7 +5,7 @@
 # Contact: Sakura.Hu@utoronto.ca
 # License: MIT
 # Pre-requisites:
-# - The `tidyverse`, `testthat`, and `pointblank` package must be installed and loaded
+# - The `tidyverse`, `testthat`, `arrow` and `pointblank` package must be installed and loaded
 # - 00-simulate_data.R must have been run
 # Any other information needed? Make sure you are in the `bmi` rproj
 
@@ -14,11 +14,12 @@
 library(testthat)
 library(pointblank)
 library(tidyverse)
+library(arrow)
 
 
 
 #### Test data ####
-simulated_data <- read_csv("/Users/hxw/marriage/data/00-simulated_data/simulated_data.csv")
+simulated_data <- read_parquet("../data/00-simulated_data/simulated_data.parquet")
 
 
 
@@ -59,7 +60,7 @@ test_that("PhysActiveDays values should be between 1 and 7", {
   ))
 })
 
-# 8. Test for Outliers in 'SleepHrsNight' using testthat
+# 7. Test for Outliers in 'SleepHrsNight' using testthat
 test_that("SleepHrsNight values should be between 2 and 12", {
   expect_true(all(
     simulated_data$SleepHrsNight >= 2 &
@@ -67,18 +68,18 @@ test_that("SleepHrsNight values should be between 2 and 12", {
   ))
 })
 
-# 9. Check the Distribution of Gender using testthat
+# 8. Check the Distribution of Gender using testthat
 test_that("Gender should only be male or female", {
   expect_true(all(simulated_data$Gender %in% c("male", "female")))
 })
 
-# 10. Check for Data Type Consistency using testthat
+# 9. Check for Data Type Consistency using testthat
 test_that("Data types should match expectations", {
   expect_is(simulated_data$BMI, "numeric")
-  expect_is(simulated_data$Poverty, "numeric")
-  expect_is(simulated_data$PhysActiveDays, "numeric")
-  expect_is(simulated_data$Age, "numeric")
-  expect_is(simulated_data$SleepHrsNight, "numeric")
+  expect_is(simulated_data$Poverty, "integer")
+  expect_is(simulated_data$PhysActiveDays, "integer")
+  expect_is(simulated_data$Age, "integer")
+  expect_is(simulated_data$SleepHrsNight, "integer")
   expect_is(simulated_data$Gender, "character")
 })
 

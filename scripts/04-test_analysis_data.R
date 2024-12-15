@@ -18,7 +18,7 @@ library(arrow)
 
 
 #### Test data ####
-analysis_data <- read_parquet("/Users/hxw/marriage/data/02-analysis_data/clean_data.parquet")
+analysis_data <- read_parquet("../data/02-analysis_data/clean_data.parquet")
 
 
 
@@ -59,7 +59,7 @@ test_that("PhysActiveDays values should be between 1 and 7", {
   ))
 })
 
-# 8. Test for Outliers in 'SleepHrsNight' using testthat
+# 7. Test for Outliers in 'SleepHrsNight' using testthat
 test_that("SleepHrsNight values should be between 2 and 12", {
   expect_true(all(
     analysis_data$SleepHrsNight >= 2 &
@@ -67,12 +67,12 @@ test_that("SleepHrsNight values should be between 2 and 12", {
   ))
 })
 
-# 9. Check the Distribution of Gender using testthat
+# 8. Check the Distribution of Gender using testthat
 test_that("Gender should only be male or female", {
   expect_true(all(analysis_data$Gender %in% c("male", "female")))
 })
 
-# 10. Check for Data Type Consistency using testthat
+# 9. Check for Data Type Consistency using testthat
 test_that("Data types should match expectations", {
   expect_is(analysis_data$BMI, "numeric")
   expect_is(analysis_data$Poverty, "numeric")
