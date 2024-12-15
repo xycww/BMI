@@ -439,15 +439,15 @@ plot_physactive_bmi
 
 ## What is done in this paper?
 
-This paper explores the relationship between Body Mass Index (BMI) and several key lifestyle and demographic factors, including poverty, physical activity, age, sleep duration, and gender. The analysis is performed using a linear regression model, which allows us to estimate how each of these predictors influences BMI, as measured by its log-transformed values. The dataset used for this study is the cleaned data from the US National Health and Nutrition Examination Survey (NHANES), which contains a broad range of health-related information from a representative sample of the U.S. population.
+This paper explores the relationship between log(BMI) and several key lifestyle and demographic factors, including poverty, physical activity, age, sleep duration, and gender. The analysis is performed using a linear regression model, which allows us to estimate how each of these predictors influences BMI, as measured by its log-transformed values. The dataset used for this study is the cleaned data from the US National Health and Nutrition Examination Survey (NHANES), which contains a broad range of health-related information from a representative sample of the U.S. population.
 
 The model aims to quantify the impact of each predictor on BMI while controlling for the influence of other variables. The regression analysis reveals significant relationships between BMI and all the predictors considered, with some factors having a negative impact (e.g., poverty, physical activity) and others having a positive one (e.g., age, sleep hours, gender). This model sheds light on the ways in which various lifestyle choices and demographic factors may contribute to BMI variation across different segments of the population.
 
-The model used in this study, a linear regression model, is a fundamental yet powerful tool that helps to identify the strength and direction of the relationships between predictors and BMI. The results provide a valuable starting point for understanding how changes in lifestyle and demographic factors may affect BMI. However, while the model is useful, it is not without its limitations. For instance, it assumes that the relationships between the predictors and BMI are linear, which may not always be the case. Additionally, the low R-squared value suggests that other important factors influencing BMI may not have been included in the model.
+The model used in this study, a multiple linear regression model, is a fundamental yet powerful tool that helps to identify the strength and direction of the relationships between predictors and BMI. The results provide a valuable starting point for understanding how changes in lifestyle and demographic factors may affect BMI. However, while the model is useful, it has its limitations. For instance, it assumes that the relationships between the predictors and BMI are linear, which may not always be the case. Additionally, the low R-squared value suggests that other important factors influencing BMI may not have been included in the model.
 
 ## What is something that we learn about the world?
 
-One of the key findings from this paper is that poverty is negatively correlated with BMI, and the relationship is statistically significant. The negative coefficient for the poverty variable suggests that individuals in poverty tend to have higher BMI, on average, than those with higher income levels. This result is consistent with a growing body of literature that links lower socioeconomic status to obesity and poor health outcomes. It may seem counterintuitive at first—since poverty is often associated with limited access to healthy foods and exercise—but the correlation can be explained by several factors.
+One of the key findings from this paper is that poverty is negatively correlated with BMI, and the relationship is statistically significant. The negative coefficient for the poverty variable suggests that individuals in poverty tend to have higher BMI, on average, than those with higher income levels. It may seem counterintuitive at first—since poverty is often associated with limited access to healthy foods and exercise—but the correlation can be explained by several factors.
 
 In many low-income communities, the availability of affordable healthy food options is limited, leading individuals to rely on cheaper, calorie-dense foods that contribute to weight gain. Additionally, individuals in poverty may face multiple barriers to physical activity, including the lack of access to safe recreational spaces or the time and energy needed to engage in exercise, due to long working hours or other stressors. Furthermore, the high cost of healthcare and medical services in lower-income populations may prevent individuals from seeking preventative care and managing conditions like obesity. Thus, this finding underscores the importance of addressing socioeconomic disparities as part of efforts to combat obesity and improve public health.
 
@@ -469,54 +469,228 @@ Another limitation is the potential for omitted variable bias. Despite including
 
 Additionally, the model assumes linear relationships between the predictors and BMI, which may not fully capture the complexities of the data. Interaction effects, such as between poverty and physical activity, could potentially reveal more nuanced relationships, but these were not included in the current model. The absence of interaction terms may have led to the underestimation of the impact of certain predictors, as the effect of one variable may depend on the level of another. Future analyses could explore interaction terms to assess whether these improve model fit and offer deeper insights into the factors that influence BMI.
 
-Moving forward, there are several steps that could be taken to address these weaknesses. First, the inclusion of additional predictors could improve the model's explanatory power. Collecting more detailed data on lifestyle, diet, or mental health factors would help provide a more complete picture of the determinants of BMI. Second, using a non-linear model or exploring transformations of the predictors might better capture the relationships between BMI and the explanatory variables. Finally, addressing the possibility of interaction effects and testing different model specifications could enhance the robustness of the results. This could include experimenting with non-parametric models, such as random forests or gradient boosting machines, to better handle the complexities of the data. By expanding the scope of the analysis and refining the model, future work could yield more precise estimates and offer more actionable insights for public health interventions.
+Another avenue for improvement involves the application of model selection criteria, such as Akaike Information Criterion (AIC) or Bayesian Information Criterion (BIC), to systematically compare different model specifications. By testing multiple models with varying combinations of predictors and interaction terms, AIC or BIC could help identify a model that balances explanatory power with parsimony. This approach would allow for the identification of additional variables or interactions that may influence log(BMI) while avoiding overfitting. Incorporating model selection techniques could also provide a clearer understanding of which variables contribute meaningfully to BMI variation, guiding the development of a more robust and interpretable model.
+
+Moving forward, there are several steps that could be taken to address these weaknesses. First, the inclusion of additional predictors could improve the model's explanatory power. Collecting more detailed data on lifestyle, diet, or mental health factors would help provide a more complete picture of the determinants of BMI. Second, using a non-linear model or exploring transformations of the predictors might better capture the relationships between BMI and the explanatory variables. Third, addressing the possibility of interaction effects and testing different model specifications could enhance the robustness of the results. This could include experimenting with non-parametric models, such as random forests or gradient boosting machines, to better handle the complexities of the data. Finally, employing model selection criteria like AIC or BIC during the exploratory phase would ensure that the final model is both parsimonious and comprehensive. By expanding the scope of the analysis and refining the model, future work could yield more precise estimates and offer more actionable insights for public health interventions.
 
 \newpage
 
 \appendix
 
-# Appendix {{#sec-append}}
+# Appendix {#sec-append}
 
 
 # Additional data details {#sec-data-details}
 
 ## Data Justication {#sec-data-justication}
-The NHANES_raw dataset provides a comprehensive collection of data from the American National Health and Nutrition Examination Surveys (NHANES), including 20,293 observations spanning 75 variables. This dataset includes additional variables that describe the sample weighting scheme employed to account for the complex survey design. However, despite its breadth and richness, NHANES_raw introduces complexities in analysis due to the oversampling of certain subpopulations, such as racial minorities. This sampling approach necessitates the use of survey weights and other design-specific parameters to obtain unbiased estimates and valid statistical inferences.
+The NHANES_raw dataset represents a rich and expansive collection of data from the American National Health and Nutrition Examination Surveys (NHANES). It encompasses 20,293 observations across 75 variables, including data on health, nutrition, and demographic factors. Additionally, NHANES_raw incorporates variables describing the sample weighting scheme employed to account for its complex, multistage survey design. This design includes oversampling of certain subpopulations, such as racial and ethnic minorities, to improve the precision of estimates for these groups. While this approach enhances its utility for population-level research, it introduces complexities for analysis, particularly for researchers unfamiliar with survey design methodologies.
 
-Naïve analysis of NHANES_raw—without accounting for the sample design and weights—can lead to significant biases and erroneous conclusions. For instance, the racial composition in NHANES_raw does not represent the true demographic distribution of the U.S. population due to oversampling adjustments. As a result, researchers must account for these weights in any analysis to avoid overstating significance levels and generating inaccurate results. This makes NHANES_raw unsuitable for straightforward analysis in contexts where the primary goal is to demonstrate simple statistical relationships, especially for educational purposes.
+A critical limitation of NHANES_raw is its reliance on survey weights to account for the oversampling of subpopulations and ensure representativeness of the U.S. population. Naïve analyses that disregard these weights can yield misleading results. For example, the raw racial composition in NHANES_raw does not reflect the true demographic distribution of the U.S. population due to intentional oversampling adjustments. Failure to account for the survey weights risks overstating statistical significance, generating biased estimates, and drawing inaccurate conclusions. As such, analyses based on NHANES_raw require expertise in survey statistics and careful implementation of weighting techniques to produce valid results.
 
-In contrast, the NHANES dataset, which is a resampled subset of NHANES_raw, addresses the complexities associated with the oversampling design. With 10,000 observations and the same 75 variables, NHANES is simplified to approximate a simple random sample from the U.S. population. This resampling process removes the need for researchers to manually account for the oversampling effects, enabling analyses that are easier to interpret and less prone to methodological errors for educational purposes.
+For the purposes of this study, the NHANES dataset, a simplified resampled subset of NHANES_raw, was selected. This subset comprises 10,000 observations and retains the same 75 variables but approximates a simple random sample from the U.S. population. The resampling process mitigates the challenges associated with the original survey design by removing the need to manually account for oversampling effects and survey weights. This simplification makes NHANES particularly suitable for educational applications, as it allows for straightforward statistical analyses without requiring advanced knowledge of survey methodologies. Furthermore, the subset retains sufficient variability to explore meaningful relationships between variables while reducing the risk of misinterpretation arising from unaddressed biases in the original dataset.
 
-The decision to use NHANES in this paper was driven by its appropriateness for demonstrating relationships between body mass index (BMI) and lifestyle, poverty, age, and gender. NHANES allows for clear and reliable analyses without requiring specialized expertise in survey design or sampling weights, making it ideal for this study’s educational focus. The dataset enables meaningful exploration of public health questions while minimizing the risk of misinterpretation due to unaddressed biases in the sampling framework.
+The decision to use NHANES in this paper was guided by its alignment with the study's educational focus and analytical goals. Specifically, it provides a clean and interpretable framework for investigating the relationships between body mass index (BMI) and factors such as lifestyle, poverty, age, and gender. By simplifying the sampling complexities of the original dataset, NHANES ensures that the analyses presented in this paper are accessible to a broader audience, including those less familiar with survey weighting procedures.
 
-It is important to acknowledge that NHANES is adapted for educational purposes and is not intended for formal research. Researchers conducting advanced studies should rely on the original NHANES_raw data and adhere to the prescribed sampling and weighting procedures to ensure the validity of their findings. Future research could extend the current analysis by using NHANES_raw in combination with survey weighting techniques to explore population-level health trends and disparities with greater accuracy.
+It is important to recognize that while NHANES is tailored for educational purposes, it is not suitable for formal research aimed at generating population-level inferences. Researchers conducting such studies should rely on NHANES_raw and adhere strictly to the prescribed sampling and weighting procedures to maintain the validity and accuracy of their findings. Future extensions of this analysis could utilize NHANES_raw in conjunction with survey weighting techniques to examine population-level health trends and disparities with greater precision. Additionally, incorporating variables specific to the survey design—such as strata and cluster identifiers—could enable a more comprehensive exploration of the complexities underlying the relationships between health outcomes and sociodemographic factors. This approach would provide a more robust framework for addressing nuanced public health questions at the national level.
 
 # Surveys, Sampling, and Observational Data {#sec-sampling-details}
-The National Health and Nutrition Examination Survey (NHANES) represents one of the most comprehensive and influential health datasets in the United States, providing a valuable resource for understanding the health and nutritional status of the U.S. population. Conducted by the National Center for Health Statistics (NCHS), NHANES gathers both interview and physical examination data, which are combined to produce estimates of the general population’s health, nutritional status, and related behaviors. The methodology behind the NHANES survey is complex and carefully designed to ensure that the data collected are representative of the U.S. civilian, non-institutionalized population.
 
-The target population of NHANES consists of the civilian, non-institutionalized population of the United States, including individuals of all ages. This broad and inclusive definition ensures that the data captured by NHANES reflect the health and nutritional status of nearly every demographic group in the country. However, as a complex survey design, NHANES also uses a stratified, multistage sampling approach to select participants, ensuring that certain subgroups, particularly those with greater health disparities, are adequately represented. To achieve this goal, NHANES selects a representative sample from all counties in the U.S. Each year, a new group of PSUs (Primary Sampling Units) is chosen, which typically consist of counties or groups of contiguous counties. A total of about 12,000 people participate in each two-year cycle. This sampling method incorporates differential probabilities of selection, ensuring that groups at higher risk of health issues or underrepresentation (e.g., racial minorities, elderly individuals) are more likely to be sampled. As a result, NHANES oversamples certain subgroups, such as non-Hispanic Black individuals, Hispanic individuals, and elderly individuals over the age of 80, to improve the precision and reliability of health estimates for these populations.
+## Methodology Analysis
+### Introduction
 
-The recruitment process for NHANES is critical to ensuring that the sample is representative and that response rates are maximized. The process begins by selecting households through a multi-stage sampling design. In the first stage, PSUs are chosen using probability proportional to size (PPS), ensuring that more populous areas are selected with higher likelihood. In the second stage, segments within the PSUs are selected—typically representing census blocks or other local geographic units. In the third stage, households within the segments are listed, and a sample of households is chosen. Finally, individuals are selected within these households, using a method that ensures the representation of key demographic characteristics such as age, sex, and race/ethnicity. On average, two participants are chosen per eligible household, which allows the survey to gather a substantial amount of data on family structures, as well as individual health outcomes.
+The National Health and Nutrition Examination Survey (NHANES) is a critical tool for understanding the health and nutritional status of the U.S. population. Managed by the National Center for Health Statistics (NCHS), NHANES gathers comprehensive data through interviews and physical examinations, providing invaluable insights into the health behaviors and chronic conditions affecting diverse groups. This essay aims to explore NHANES’s methodology in-depth, including its target population, sampling strategy, recruitment process, non-response handling, and data collection techniques.
 
-The sampling approach used by NHANES is probabilistic, which means that each person in the target population has a known, non-zero probability of being selected. This is in contrast to deterministic approaches, which might introduce bias by excluding certain groups or individuals from the sample. By employing a probabilistic method, NHANES ensures that its data can be generalized to the entire U.S. population, although care must be taken when analyzing smaller subgroups, given the smaller sample sizes in these categories. One of the trade-offs of this probabilistic sampling approach is the increased complexity of the survey design. Given the multi-stage sampling procedure, survey weights and variance estimation methods must be carefully applied during the data analysis phase to adjust for the unequal probabilities of selection and the clustering of respondents within geographic regions. These adjustments are necessary to avoid biased estimates, particularly when estimating health indicators for subgroups or when combining data across multiple survey cycles.
+### Target Population and Sampling Methodology
 
-Non-response is a common challenge in large-scale surveys like NHANES, and its handling is critical to ensuring that the data remain unbiased and representative. Non-response in NHANES can occur at both the unit (or sample person) level and the component (or item) level. Unit non-response refers to individuals who are selected to participate in the survey but either refuse to participate or fail to respond to any part of the survey (e.g., household interview or medical examination). In the 2009-2010 cycle, for example, of the 13,272 persons eligible to participate, 21% failed to complete the household interview, and a further 2% of those who completed the interview did not participate in the medical examination. These non-responses were adjusted for using sampling weights, which are designed to reflect the number of individuals in the population represented by each sample respondent.
+NHANES aims to represent the civilian, non-institutionalized U.S. population, encompassing individuals of all ages, genders, and racial/ethnic groups. The survey’s sampling strategy is designed to be representative of the entire U.S. population and includes specific oversampling of groups that are underrepresented or have health disparities. This methodology allows researchers to obtain reliable estimates of health outcomes across different demographic groups.
 
-Component non-response, on the other hand, refers to missing data for specific questions or tests within the survey. For example, a respondent may refuse to have their blood pressure measured but complete all other examination components. NHANES addresses component non-response by treating missing values as missing and adjusting the weights accordingly. When analyzing the data, researchers are encouraged to evaluate the extent of missing data for their variables of interest and to apply reweighting or imputation techniques if necessary, particularly when more than 10% of the data for a given variable is missing. While NHANES employs rigorous methods to handle non-response, it remains a potential source of bias. Non-respondents may differ in key characteristics from respondents, such as age, gender, or health status. This is particularly true for elderly individuals or those with more severe health issues, who may be less likely to participate in the survey. Therefore, the results of NHANES should always be interpreted with caution, especially when analyzing specific subgroups or when drawing conclusions about less-represented populations.
+#### Stratified, Multistage Sampling
 
-The NHANES questionnaire and data collection process are designed to capture a comprehensive range of health, nutritional, and demographic information. The questionnaire consists of multiple sections, including detailed questions on demographic characteristics (e.g., age, sex, race, income), health behaviors (e.g., smoking, alcohol consumption, physical activity), and medical history (e.g., chronic diseases, medication use). The questionnaire also covers dietary intake, which is crucial for understanding the population’s nutritional status.
+NHANES employs a **stratified, multistage sampling design** to select participants, ensuring diverse representation and reducing sampling bias. The process begins with the selection of Primary Sampling Units (PSUs), which are typically counties or groups of contiguous counties. These PSUs are chosen using a probability proportional to size (PPS) method, ensuring that more populous areas have a higher likelihood of being selected.
 
-The questionnaire is administered during a household interview, which is followed by a physical examination at the Mobile Examination Centers (MEC). During the MEC visit, participants undergo a range of tests, including anthropometric measurements (e.g., height, weight, BMI), blood pressure measurements, and laboratory tests (e.g., blood, urine samples). The tests performed in the MEC allow for objective measurements of participants’ health, complementing the self-reported information collected during the interview.
+The sampling process proceeds through several stages:
+1. **PSU Selection**: Using PPS, counties or groups of counties are selected.
+2. **Segment Selection**: Segments, often representing census blocks, are chosen within selected PSUs.
+3. **Household Selection**: Households within selected segments are identified and sampled.
+4. **Individual Selection**: Individuals are selected within households, ensuring balanced representation across demographics such as age, gender, and race.
 
-The NHANES questionnaire is continuously updated to reflect new public health concerns and emerging health trends. For example, over time, the survey has included questions related to emerging issues such as mental health, sleep patterns, and environmental exposures. However, the questionnaire also has limitations. For example, self-reported data on health behaviors like physical activity or dietary intake may be subject to recall bias, with participants underestimating or overestimating their behaviors. Additionally, some participants may be reluctant to report sensitive information, such as smoking or alcohol consumption, which can further skew the data.
+This **probabilistic design** allows each person in the target population to have a known, non-zero probability of selection, making it a powerful tool for generalizing the results to the U.S. population.
 
-One of the major strengths of the NHANES methodology is its ability to provide nationally representative estimates of health and nutritional status across a wide range of demographic and geographic subgroups. By combining interviews with objective physical examinations and laboratory tests, NHANES offers a rich, multi-dimensional view of health in the U.S. population. The rigorous sampling and data collection procedures ensure that the data can be used for a wide variety of public health analyses, from assessing chronic disease prevalence to tracking health trends over time.
+#### Oversampling and Stratification
 
-However, NHANES also has several weaknesses. The most notable is the issue of non-response, particularly in certain subgroups (e.g., elderly individuals, people with poor health). While the survey adjusts for non-response using weights, there is always the possibility that the non-respondents differ systematically from the respondents, which could lead to biased estimates. Additionally, the reliance on self-reported data can introduce biases such as social desirability bias or recall bias, which can affect the accuracy of responses on health behaviors and lifestyle factors.
+One of the key strengths of NHANES’s sampling design is its **oversampling of certain subgroups**. Specifically, NHANES oversamples non-Hispanic Black individuals, Hispanic individuals, and elderly individuals, especially those over the age of 80. This approach ensures that the survey yields sufficiently accurate and reliable estimates for these populations, which may otherwise be underrepresented in a simple random sample. 
 
-Moreover, the fact that NHANES data are released in two-year cycles means that estimates for some subgroups may not be stable, particularly for rare health conditions or smaller demographic groups. Combining data across multiple years can help mitigate this issue, but it also introduces complexities in terms of data harmonization and analytic guidelines.
+This stratified sampling approach ensures that key demographic groups are adequately represented, which is particularly important when assessing health disparities in the U.S. population.
 
-In conclusion, NHANES provides a valuable and unique resource for understanding the health and nutritional status of the U.S. population. Its robust sampling methodology, comprehensive questionnaire, and use of both self-reported and objective health measures make it an indispensable tool for public health research. While the survey has several strengths, including its representativeness and ability to assess health trends over time, it also faces challenges related to non-response, data quality, and biases inherent in self-reported information. Researchers must be mindful of these issues when analyzing NHANES data, and apply appropriate statistical methods to account for potential biases. Nonetheless, NHANES remains a cornerstone of U.S. public health surveillance, providing critical insights into the health and well-being of the nation’s diverse population.
+#### Variance Estimation and Survey Weights
+
+Given the multi-stage, stratified design, NHANES data require careful handling during analysis. **Survey weights** are applied to adjust for unequal probabilities of selection. These weights correct for the fact that individuals in more populous areas have a higher chance of selection, and they help adjust for the over- or underrepresentation of certain subgroups.
+
+Additionally, the sampling clusters within PSUs introduce **intra-cluster correlation**, meaning that individuals within the same PSU are more likely to share similar characteristics than individuals across PSUs. Variance estimation methods, such as Taylor Series Linearization or Balanced Repeated Replication, are used to account for this correlation in order to generate accurate confidence intervals and significance tests.
+
+### Recruitment Process
+
+The recruitment process for NHANES is designed to maximize participation rates while ensuring the sample remains representative of the U.S. population. Each stage in the sampling process is carefully designed to engage diverse populations, reduce bias, and address barriers to participation.
+
+#### Stage 1: PSU Selection
+Primary Sampling Units (PSUs), typically counties or groups of contiguous counties, are selected using PPS. This ensures that larger counties with higher populations have a higher probability of being selected.
+
+#### Stage 2: Segment and Household Selection
+Within each PSU, geographic segments are selected, often representing census blocks. From these segments, households are selected, ensuring a mix of rural, suburban, and urban areas. 
+
+#### Stage 3: Individual Selection
+Within each household, individuals are chosen to participate in the survey, with selection methods that account for key demographic variables such as age, gender, and ethnicity. By choosing individuals based on these criteria, NHANES ensures that the sample is balanced across relevant characteristics.
+
+### Non-Response and Data Adjustments
+
+Non-response is a common issue in large-scale surveys, and NHANES employs multiple strategies to minimize its impact on the results. Non-response can occur at two levels: unit non-response (refusals to participate) and item non-response (failure to respond to specific questions).
+
+#### Unit Non-Response
+Unit non-response occurs when selected individuals refuse to participate or are unable to participate for other reasons. In the 2009-2010 cycle, for instance, 21% of eligible participants did not complete the household interview, and 2% of those who completed the interview refused the medical examination. Non-response at the unit level is adjusted by applying **sampling weights** that reflect the demographic characteristics of non-respondents.
+
+#### Item Non-Response
+Item non-response happens when respondents skip or refuse to answer specific questions or tests, such as blood pressure measurements or questions about smoking habits. NHANES addresses item non-response through the use of imputation techniques or by applying weights that account for missing data.
+
+### Data Collection and Questionnaire Design
+
+NHANES collects an extensive range of health and nutrition data through interviews and physical examinations, providing a rich dataset for public health research. The survey includes a variety of sections, such as:
+
+1. **Demographic Information**: Age, sex, race, income, education level.
+2. **Health Behaviors**: Smoking, alcohol consumption, physical activity levels.
+3. **Medical History**: Chronic diseases, medication use, and past health diagnoses.
+4. **Dietary Intake**: Detailed dietary recalls, including information about calorie and nutrient intake.
+
+#### Physical Examinations
+Participants undergo a series of medical tests at Mobile Examination Centers (MECs), which include:
+- **Anthropometric Measurements**: Height, weight, and BMI.
+- **Blood Pressure**: Both systolic and diastolic blood pressure measurements.
+- **Laboratory Tests**: Blood and urine samples to assess biochemical markers of health.
+
+These objective measurements complement the self-reported data from the interviews, providing a more complete picture of participants' health status.
+
+#### Limitations of Self-Reported Data
+While NHANES includes objective measurements, it also relies heavily on **self-reported data**, which can be prone to biases such as recall bias or social desirability bias. For instance, respondents may underreport behaviors like alcohol consumption or smoking, or overestimate their physical activity levels. This introduces potential inaccuracies, especially for health behaviors that are sensitive or socially stigmatized.
+
+### Strengths and Limitations of NHANES
+
+#### Strengths
+NHANES provides robust, nationally representative data that can be used to track health trends, monitor disease prevalence, and guide public health policy. The **multi-dimensional data collection**—which includes both subjective interviews and objective examinations—offers a comprehensive understanding of health issues across the U.S. population.
+
+Additionally, the **oversampling of subgroups** ensures that groups typically underrepresented in national surveys are adequately studied, which enhances the generalizability of findings to diverse populations.
+
+#### Limitations
+Despite its strengths, NHANES faces several limitations:
+1. **Non-response**: Even with the application of weights, non-response can introduce bias, especially among older adults or individuals in poor health.
+2. **Self-Report Bias**: The reliance on self-reported data for behaviors such as diet, physical activity, and substance use is subject to significant recall and social desirability biases.
+3. **Data Cycles**: NHANES data is collected in two-year cycles, which can make it challenging to estimate trends for smaller subgroups or rare health conditions. Combining data from multiple cycles may be necessary, but this introduces additional complexities in analysis.
+
+### Conclusion
+
+NHANES is a powerful and invaluable resource for public health research, offering detailed, nationally representative data on a wide range of health and nutritional topics. The survey’s complex, stratified, multistage sampling design ensures that the data are reflective of the U.S. population. Although challenges such as non-response and the limitations of self-reported data exist, NHANES remains a critical tool for understanding public health issues and guiding policy decisions. Researchers must apply appropriate statistical techniques to address these challenges, ensuring the robustness and accuracy of their findings.
+
+## Idealized survey
+
+The survey will be structured as follows:
+
+### Introductory Section
+
+The survey will begin with a clear introduction outlining the purpose of the survey, ensuring participants understand the goals of the study. This section will also describe the confidentiality measures, emphasizing that personal information will not be shared. Contact details for questions or concerns will be provided.
+
+### Demographics and Personal Information (Section 1)
+
+This section will collect basic information, such as age, gender, ethnicity, and socio-economic status, which are known to impact BMI.
+
+### Health and Lifestyle Factors (Section 2)
+
+This section will inquire about physical activity levels, dietary habits, alcohol consumption, smoking, and sleep patterns. It will include validated scales such as the International Physical Activity Questionnaire (IPAQ) and a food frequency questionnaire (FFQ).
+
+### Genetic and Family History (Section 3)
+
+Participants will be asked if they have any family history of obesity, diabetes, or cardiovascular disease, which can help identify genetic predispositions.
+
+### Psychological and Social Factors (Section 4)
+
+This section will include questions on mental health, stress levels, and social support, as these factors can also affect BMI.
+
+### BMI Measurement (Section 5)
+
+Participants will be asked to self-report their weight and height, and their BMI will be calculated. This will be followed by a prompt for participants to either confirm their BMI or opt to take part in a physical measurement of weight and height.
+
+### Closing Section
+
+A thank-you message will be included, and respondents will be reminded that their participation is voluntary and can be withdrawn at any time.
+
+## 3. Sampling Approach
+
+A stratified random sampling approach will be used to ensure that the survey sample is representative of the general population. The stratification will be based on key demographic factors, such as:
+
+- **Age**: Different age groups will be targeted to examine how BMI and its predictors vary across the lifespan.
+- **Gender**: Both men and women will be surveyed to investigate gender differences in BMI-related factors.
+- **Socio-economic Status**: Income and education levels will be used to examine how socio-economic factors influence BMI.
+- **Geographic Location**: Participants will be sampled from urban, suburban, and rural areas to capture regional variations in BMI and health behaviors.
+
+The sample size will be approximately 10,000 respondents, ensuring statistical power for the analysis. The sampling frame will be drawn from public voter registration lists, with additional recruitment through social media and community outreach to reach diverse populations.
+
+## 4. Recruitment Strategy
+
+Recruitment will be conducted through multiple channels:
+
+- **Online Surveys**: A link to the survey will be distributed via social media platforms, targeting a broad audience. A paid advertisement campaign will be used to ensure a diverse and representative sample.
+  
+- **Community Outreach**: Partnerships with community organizations will allow for in-person recruitment, especially for populations that may be underrepresented in online surveys.
+
+- **Incentives**: Participants will receive a small financial incentive (e.g., $5) to encourage participation.
+
+## 5. Non-Response Handling
+
+To handle non-response bias, several strategies will be employed:
+
+- **Follow-up Invitations**: Non-respondents will receive two email reminders and a phone call if their contact information is available.
+- **Incentive Adjustment**: A larger incentive (e.g., $10) will be offered for participants who complete the survey within a certain time frame.
+
+## 6. Data Validation
+
+Data quality will be ensured through the following measures:
+
+- **Data Consistency Checks**: Automatic consistency checks will be built into the survey platform to flag implausible responses (e.g., extreme self-reported height or weight).
+- **Randomized Validation Sample**: A subset of respondents will be asked to visit a local clinic for physical measurements of height and weight, allowing for validation of self-reported data.
+
+## 7. Survey Questions
+
+The questions will be constructed to minimize biases and ensure reliability. The following are examples of question types:
+
+- **Demographic Questions:**
+  - "What is your age?"
+  - "What is your gender?"
+  
+- **Physical Activity Questions:**
+  - "On average, how many days per week do you engage in at least 30 minutes of moderate physical activity?"
+  - "How many hours of sedentary activity (e.g., watching TV, using a computer) do you engage in per day?"
+
+- **Dietary Habits:**
+  - "How often do you consume fruits and vegetables on a typical day?"
+  - "How many servings of sugary drinks do you consume per week?"
+
+- **Psychological Factors:**
+  - "On a scale from 1 to 10, how would you rate your current stress level?"
+  - "Do you feel supported by your family and friends?"
+
+## 8. Aggregation and Statistical Methods
+
+The collected data will be aggregated and analyzed using multiple regression techniques to identify significant predictors of BMI. The following methods will be employed:
+
+- **Descriptive Statistics** will be used to summarize demographic data and BMI-related variables.
+- **Regression Analysis** will help identify key predictors of BMI (e.g., physical activity, diet, genetics).
+- **Interaction Terms** will be included to examine how combinations of factors (e.g., physical activity and diet) jointly affect BMI.
+
+## 9. Questionnaire Design and Order
+
+The survey will be structured to minimize response bias. Sensitive questions (e.g., those about weight and diet) will be placed at the end of the survey, once rapport has been built. Demographic questions will appear first to quickly categorize participants without triggering discomfort.
+
+## 10. Survey Platform
+
+The survey will be implemented using a robust platform like Google Forms or Qualtrics, allowing for automated data collection and validation.
+
 
 # Model details {#sec-model-details}
 
@@ -524,16 +698,16 @@ In conclusion, NHANES provides a valuable and unique resource for understanding 
 
 The analysis of linear regression assumptions shows that all conditions are met. The fitted versus residual plot displays a null plot centered around zero, indicating that the linearity assumption is satisfied, as no discernible pattern exists. Additionally, the consistent spread of residuals across the fitted values confirms the constant error variance assumption. The absence of correlation or patterns suggests that the independence of errors is also satisfied. Both the fitted versus standardized residuals plot and the predictor variables versus residuals plots support these conclusions.
 The QQ plot shows standardized residuals following a straight diagonal line, while the histogram indicates a distribution close to ~N(0,1), confirming the normality assumption of errors. Lastly, the response variable versus fitted values plot shows that observed values align with predicted values, suggesting that the model accurately predicts the response variable.
-Although the residual plots indicate that all regression assumptions are met, the predictor versus response plots show weak correlations between predictor variables and log(BMI
+Although the residual plots indicate that all regression assumptions are met, the predictor versus response plots show weak correlations between predictor variables and log(BMI).
 
 ```{r}
 #| echo: false
 #| label: fig-model-diagnostics
-#| fig-cap: "Diagnostic and Predictor Relationships in the Linear Model for log(BMI)."
+#| fig-cap: "Diagnostic plots assessing the assumptions and performance of the linear regression model for predicting log(BMI). The plots evaluate the residuals and fitted values to ensure the validity of the linear model. (1) Residuals vs. Fitted Values tests the assumption of homoscedasticity. (2) Standardized Residuals vs. Fitted Values examines the presence of outliers and systematic patterns. (3) Distribution of Standardized Residuals evaluates the normality of residuals. (4) Residuals vs. Poverty Index and (5) Residuals vs. Age assess the independence of residuals concerning key predictors. (6) Residuals vs. Gender compares residuals across categorical groups. (7) Fitted Values vs. Observed log(BMI) visualizes model accuracy, and (8) Q-Q Plot assesses the normality of residuals against theoretical quantiles. Together, these plots ensure the appropriateness of the model and identify potential violations of its assumptions."
 #| fig-subcap: ["Fitted vs Residuals", "Fitted vs Standardized Residuals", "Histogram of Standardized Residuals", "Poverty vs Residuals", "Age vs Residuals", "Gender vs Residuals", "Fitted vs log(BMI)", "Normal Q-Q Plot"]
-#| layout-ncol: 4
-#| fig.width: 12
-#| fig.height: 18
+#| layout-ncol: 3
+#| fig.width: 15
+#| fig.height: 15
 
 # Extract values for residuals and fitted values
 fitted_values <- fitted(lm_model)
@@ -552,7 +726,7 @@ plot_fitted_residuals <- ggplot(data.frame(fitted_values, residual_values),
   geom_hline(yintercept = 0, linetype = "dashed") +
   labs(x = "Fitted Values", y = "Residuals") +
   theme_minimal() +
-  theme(axis.title = element_text(size = 10), axis.text = element_text(size = 8))
+  theme(axis.title = element_text(size = 30), axis.text = element_text(size = 30))
 
 # 2. Fitted vs Standardized Residuals
 plot_fitted_standardized <- ggplot(data.frame(fitted_values, sresidual_values), 
@@ -561,14 +735,14 @@ plot_fitted_standardized <- ggplot(data.frame(fitted_values, sresidual_values),
   geom_hline(yintercept = 0, linetype = "dashed") +
   labs(x = "Fitted Values", y = "Standardized Residuals") +
   theme_minimal() +
-  theme(axis.title = element_text(size = 10), axis.text = element_text(size = 8))
+  theme(axis.title = element_text(size = 30), axis.text = element_text(size = 30))
 
 # 3. Standardized Residuals Histogram
 plot_residuals_hist <- ggplot(data.frame(sresidual_values), aes(x = sresidual_values)) +
   geom_histogram(binwidth = 0.1, fill = "lightblue", color = "black") +
   labs(x = "Standardized Residuals", y = "Frequency") +
   theme_minimal() +
-  theme(axis.title = element_text(size = 10), axis.text = element_text(size = 8))
+  theme(axis.title = element_text(size = 30), axis.text = element_text(size = 30))
 
 # 4. Residuals vs Poverty
 plot_residuals_poverty <- ggplot(data.frame(nhanes_data$Poverty, residual_values), 
@@ -577,7 +751,7 @@ plot_residuals_poverty <- ggplot(data.frame(nhanes_data$Poverty, residual_values
   geom_hline(yintercept = 0, linetype = "dashed") +
   labs(x = "Poverty Index", y = "Residuals") +
   theme_minimal() +
-  theme(axis.title = element_text(size = 10), axis.text = element_text(size = 8))
+  theme(axis.title = element_text(size = 30), axis.text = element_text(size = 30))
 
 # 5. Residuals vs Age
 plot_residuals_age <- ggplot(data.frame(nhanes_data$Age, residual_values), 
@@ -586,7 +760,7 @@ plot_residuals_age <- ggplot(data.frame(nhanes_data$Age, residual_values),
   geom_hline(yintercept = 0, linetype = "dashed") +
   labs(x = "Age", y = "Residuals") +
   theme_minimal() +
-  theme(axis.title = element_text(size = 10), axis.text = element_text(size = 8))
+  theme(axis.title = element_text(size = 30), axis.text = element_text(size = 30))
 
 # 6. Residuals vs Gender
 plot_residuals_gender <- ggplot(data.frame(nhanes_data$Gender, residual_values), 
@@ -594,7 +768,7 @@ plot_residuals_gender <- ggplot(data.frame(nhanes_data$Gender, residual_values),
   geom_boxplot(fill = "gray") +
   labs(x = "Gender", y = "Residuals") +
   theme_minimal() +
-  theme(axis.title = element_text(size = 10), axis.text = element_text(size = 8))
+  theme(axis.title = element_text(size = 30), axis.text = element_text(size = 30))
 
 # 7. Fitted vs Log(BMI)
 plot_fitted_logBMI <- ggplot(data.frame(fitted_values, log_BMI = scatter_data$log_BMI), 
@@ -603,7 +777,7 @@ plot_fitted_logBMI <- ggplot(data.frame(fitted_values, log_BMI = scatter_data$lo
   geom_abline(intercept = 0, slope = 1, color = "blue", linetype = "dashed") +
   labs(x = "Fitted Values", y = "log(BMI)") +
   theme_minimal() +
-  theme(axis.title = element_text(size = 10), axis.text = element_text(size = 8))
+  theme(axis.title = element_text(size = 30), axis.text = element_text(size = 30))
 
 # 8. Q-Q Plot
 plot_qq <- ggplot(data = data.frame(std_resid = rstandard(lm_model)), aes(sample = std_resid)) +
@@ -611,7 +785,7 @@ plot_qq <- ggplot(data = data.frame(std_resid = rstandard(lm_model)), aes(sample
   stat_qq_line(color = "blue") +
   labs(x = "Theoretical Quantiles", y = "Standardized Residuals") +
   theme_minimal() +
-  theme(axis.title = element_text(size = 10), axis.text = element_text(size = 8))
+  theme(axis.title = element_text(size = 30), axis.text = element_text(size = 30))
 
 plot_fitted_residuals
 plot_fitted_standardized
